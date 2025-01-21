@@ -99,3 +99,31 @@ export const isToday = (dateString: string): boolean => {
       date.getDate() === today.getDate()
   );
 };
+
+export const StaticFilter=[
+  {
+    id:"1",
+    key:"today",
+    value:"Hari Ini"
+  },
+  {
+    id:"1",
+    key:"thisweek",
+    value:"Minggu Ini"
+  },
+  {
+    id:"1",
+    key:"thismonth",
+    value:"Bulan Ini"
+  },
+  {
+    id:"1",
+    key:"thisyear",
+    value:"Tahun Ini"
+  },
+  {
+    id:"1",
+    key:"all",
+    value:"Sejauh Mungkin :D"
+  },
+]

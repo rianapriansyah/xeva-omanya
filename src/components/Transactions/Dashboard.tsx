@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, styled, Typography } from '@mui/material';
+import { Avatar, Box, FormControl, InputLabel, List, ListItem, ListItemAvatar, ListItemText, MenuItem, Select, SelectChangeEvent, styled, Typography } from '@mui/material';
 import { BarChart, LineChart } from '@mui/x-charts';
 import Grid from '@mui/material/Grid2'
 import { useSelector } from 'react-redux';
@@ -8,7 +8,7 @@ import { fetchCategories, fetchDashboardData, fetchIncome, fetchProductsSoldData
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
 import FunctionsIcon from '@mui/icons-material/Functions';
-import { Category } from '../../types/interfaceModel';
+import { Category, StaticFilter } from '../../types/interfaceModel';
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -25,6 +25,7 @@ const Dashboard: React.FC = () => {
 	const [productsSoldData, setProductSoldData] = useState<any>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [expanded, setExpanded] = React.useState<string | false>('');
+	const [selectedFilter, setSelectedFilter] = useState<string>('today');
 	
 	const fetchSummaryData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
     const response = await fetchDashboardData(storeId, filter, startDate, endDate);
@@ -36,7 +37,7 @@ const Dashboard: React.FC = () => {
 		setData(dashboardDataArray);
 	};
 
-	const handleFetchCategory = async () => {
+	const fetchCategory = async () => {
 			try {
 				const data = await fetchCategories(selectedStore?.id);
 				const sortedCategories = data.data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name))
@@ -57,12 +58,24 @@ const Dashboard: React.FC = () => {
 	};
 	
 	useEffect(() => {
-		fetchSummaryData(selectedStore?.id, '');
-		fetchIncomeData(selectedStore?.id, 'thismonth')
-		fetchProductsSold(selectedStore?.id, '')
-		handleFetchCategory();
+		fetchSummaryData(selectedStore?.id, selectedFilter);
 		// fetchTransactionData();
-	}, [selectedStore]);
+	}, [selectedStore, selectedFilter]);
+
+	useEffect(() => {
+		fetchIncomeData(selectedStore?.id, selectedFilter);
+		// fetchTransactionData();
+	}, [selectedStore, selectedFilter]);
+
+	useEffect(() => {
+		fetchCategory();
+		// fetchTransactionData();
+	}, [selectedStore, selectedFilter]);
+
+	useEffect(() => {
+		fetchProductsSold(selectedStore?.id, selectedFilter);
+		// fetchTransactionData();
+	}, [selectedStore, selectedFilter]);
 
 	const xAxisData = incomeData.map((point:any) => new Date(point.date).getDate()); // Extract dates
 	const seriesData = incomeData.map((point:any) => point.totalIncome); // Extract total income
@@ -134,12 +147,17 @@ const Dashboard: React.FC = () => {
 	}));
 
   const handleChange =
-    (panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpanded(newExpanded ? panel : false);
-    };
+	(panel: string) => (_event: React.SyntheticEvent, newExpanded: boolean) => {
+		setExpanded(newExpanded ? panel : false);
+	};
+
+	const handleCarChange = async (e: SelectChangeEvent<string>) => {
+    setSelectedFilter(e.target.value as string);
+  };
 
 	return (
 		<Grid>
+			
 			<Box sx={{borderRadius:"10px", mb: 2, display: "flex", flexDirection: "column",height: "inherit"
 				// justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
 				}}>
@@ -147,6 +165,22 @@ const Dashboard: React.FC = () => {
 				<Typography variant="h6" gutterBottom>
 					Dashboard
 				</Typography>
+				<FormControl fullWidth variant="outlined" style={{ marginBottom: '16px' }}>
+        <InputLabel id="car-select-label">Pilih Filter</InputLabel>
+        <Select
+          labelId="car-select-label"
+          id="car-select"
+          value={selectedFilter}
+          onChange={handleCarChange}
+          label="Terapkan Filter"
+        >
+          {StaticFilter.map((filter) => (
+            <MenuItem key={filter.id} value={filter.key}>
+              {filter.value}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 				<List sx={{ bgcolor: 'background.paper' }}>
 				{dashboardData.map((data: any) => (
 					<ListItem
