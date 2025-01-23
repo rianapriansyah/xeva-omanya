@@ -101,6 +101,20 @@ const Dashboard: React.FC = () => {
 			value:0,
 			icon : <FunctionsIcon />,
 			prefix : "IDR "
+		},
+		{
+			title: 'cash',
+			metric: "cash",
+			value:0,
+			icon : <FunctionsIcon />,
+			prefix : "IDR "
+		},
+		{
+			title: 'cashless',
+			metric: "cashless",
+			value:0,
+			icon : <FunctionsIcon />,
+			prefix : "IDR "
 		}
 	];
 
@@ -207,15 +221,12 @@ const Dashboard: React.FC = () => {
 					Pendapatan
 				</Typography>
 				<LineChart 
-						margin={{
-								left: 70,
-								right: 10,
-							}}
-						grid={{ vertical: true, horizontal: true }}
-
-					xAxis={[{ data: xAxisData, scaleType: 'point', label:'tanggal' }]}
+					margin={{left: 70,right: 10,}}
+					grid={{ vertical: true, horizontal: true }}
+					xAxis={[{ data: xAxisData, scaleType: 'point', label:'tanggal',  }]}
 					series={[{ data: seriesData }]}
 					height={300}
+					tooltip={{ trigger: 'item' }} 
 				/>
 				</Grid>
 				<List>

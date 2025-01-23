@@ -124,6 +124,6 @@ export const StaticFilter=[
   {
     id:"1",
     key:"all",
-    value:"Sejauh Mungkin :D"
+    value:"Sepanjang Waktu"
   },
 ]
