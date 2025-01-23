@@ -21,51 +21,40 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-    createProduct,
-    fetchProducts,
-    updateProduct,
-    deleteProduct,
-    fetchCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-} from '../../services/api';
+
 import { ProductModal, CategoryModal } from '..';
 import { RootState } from '../../services/store';
-import { Product, Category, Actions } from '../../types/interfaceModel';
+import { Category, Actions, ProductPayload } from '../../types/interfaceModel';
 import { useSelector } from 'react-redux';
 import { NumericFormat } from 'react-number-format';
+import { deleteProduct, getAllProducts, insertProduct, updateProduct } from '../../services/productService';
+import { deleteCategory, getAllCategories, insertCategory, updateCategory } from '../../services/categoryService';
 
-const emptyProduct: Product = {
+const emptyProduct: ProductPayload = {
 	id: 0,
-	transactionId:0,
-	productId:0,
 	name:"",
 	price:0,
-	quantity:0,
-	total:0,
 	kitchen:"",
 	category:"",
-	storeId:0
+	store_id:0
 };
 
 const emptyCategory:Category={
 	id: 0,
   name:"",
   description:"",
-	storeId:0
+	store_id:0
 };
 
 const ProductList: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
-	const [products, setProducts] = useState<Product[]>([]);
+	const [products, setProducts] = useState<ProductPayload[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isProductModalOpen, setProductModalState] = useState(false); // Product Modal state
 	const [isCategoryModalOpen, setCategoryModalState] = useState(false); // Category Modal state
-	const [selectedProduct, setSelectedProduct] = useState<Product>(emptyProduct);
+	const [selectedProduct, setSelectedProduct] = useState<ProductPayload>(emptyProduct);
 	const [action, setAction] = useState<Actions>(Actions.Add);
 	const [selectedCategory, setSelectedCategory] = useState<Category>(emptyCategory);
 	const [postMessage, setMessage] = useState(""); 
@@ -73,30 +62,32 @@ const ProductList: React.FC = () => {
 	const handleCloseSnack = () => setOpenSnack(false);
 
 	useEffect(() => {
-		const loadProducts = async () => {
-			setLoading(true);
-			handleFetchProduct();
-			handleFetchCategory();
-			setLoading(false);
-		};
+		setLoading(true);
+		handleFetchProduct();
+		setLoading(false);
+	}, [selectedStore]);
 
-		loadProducts();
+	useEffect(() => {
+		setLoading(true);
+		fetchCategory();
+		setLoading(false);
 	}, [selectedStore]);
 
 	const handleSaveCategory = async (category: Category) => {
-		category.storeId = selectedStore?.id ?? 1;
+		category.store_id = selectedStore?.id ?? 1;
 		try {
-			let message = "";
+			 let message = "";
 				if (category.id === 0) {
 						// New Category
-						await createCategory(category);
+						await insertCategory(category);
 						message = "Dibuat!";
 				} else {
 						// Update Existing Category
 						await updateCategory(category.id, category);
 						message = "Diubah!";
 				}
-				handleFetchCategory(); // Refresh the Category list
+
+				fetchCategory(); // Refresh the Category list
 				setCategoryModalState(false); // Close the modal
 				triggerSnack(`${category.name} ${message}`);
 		} catch (error) {
@@ -113,7 +104,7 @@ const ProductList: React.FC = () => {
 						return;
 				} 
 				await deleteCategory(category.id);
-				handleFetchCategory(); // Refresh the Category list
+				fetchCategory(); // Refresh the Category list
 				setCategoryModalState(false); // Close the modal
 				triggerSnack(`${category.name} Dihapus!`);
 		} catch (error) {
@@ -122,13 +113,13 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleSaveProduct = async (product: Product) => {
-		product.storeId = selectedStore?.id ?? 1;
+	const handleSaveProduct = async (product: ProductPayload) => {
+		product.store_id = selectedStore?.id ?? 1;
 		try {
 			let message = "";
 				if (product.id === 0) {
 						// New Product
-						await createProduct(product);
+						await insertProduct(product);
 						message = "Dibuat!";
 				} else {
 						// Update Existing Product
@@ -144,8 +135,8 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleDeleteProduct = async (product: Product) => {
-		product.storeId = selectedStore?.id ?? 1;
+	const handleDeleteProduct = async (product: ProductPayload) => {
+		product.store_id = selectedStore?.id ?? 1;
 		try {
 				if (product.id === 0) {
 						// New Product
@@ -165,8 +156,8 @@ const ProductList: React.FC = () => {
 
 	const handleFetchProduct = async () => {
 		try {
-			const data = await fetchProducts(selectedStore?.id);
-			const sortedProduct = data.data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name))
+			const data = await getAllProducts(selectedStore?.id);
+			const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 			setProducts(sortedProduct);
 		} catch (error) {
 			console.error('Error fetching products:', error);
@@ -174,10 +165,10 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleFetchCategory = async () => {
+	const fetchCategory = async () => {
 		try {
-			const data = await fetchCategories(selectedStore?.id);
-			const sortedCategories = data.data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name))
+			const data = await getAllCategories(selectedStore?.id);
+			const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 			setCategories(sortedCategories);
 		} catch (error) {
 			console.error('Error fetching categories:', error);
@@ -208,7 +199,7 @@ const ProductList: React.FC = () => {
     },
   }));
 
-	const openProductModal = (product:Product, action:Actions) => {
+	const openProductModal = (product:ProductPayload, action:Actions) => {
 		setAction(action);
 		setSelectedProduct(product);
     setProductModalState(true);
@@ -226,7 +217,7 @@ const ProductList: React.FC = () => {
   };
 
 	const closeCategoryModal = () => {
-		handleFetchCategory();
+		fetchCategory();
     setCategoryModalState(false);
   };
 

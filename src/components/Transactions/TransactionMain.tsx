@@ -78,7 +78,7 @@ const TransactionMain: React.FC = () => {
 		try {
 			const response = await api.fetchCategories(selectedStore?.id);
 			setCategories(response.data);
-			setCategories((categories) => [{id:999, name:"Clear", description:"", storeId:0}, ...categories ]);
+			setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
 		} catch (error) {
 			console.error('Error fetching categories:', error);
 		}

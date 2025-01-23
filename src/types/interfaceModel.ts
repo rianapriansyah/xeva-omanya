@@ -27,16 +27,16 @@ export interface ProductPayload {
   id: number;
   name:string;
   price:number;
-  kitchen:string;
   category:string;
-  storeId:number;
+  kitchen:string;
+  store_id:number;
 }
 
 export interface Category {
   id: number;
   name:string;
   description:string;
-  storeId:number;
+  store_id:number;
 }
 
 export interface Guest {
