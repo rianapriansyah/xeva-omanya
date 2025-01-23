@@ -3,11 +3,11 @@ import Box from '@mui/material/Box';
 import { Tab, Tabs } from '@mui/material';
 import AvailableProducts from './AvailableProducts';
 import UnpaidTransactions from './UnpaidTransactions';
-import { Transaction, Product, Category, Actions } from '../../types/interfaceModel';
+import { Transaction, SelectedProduct, Category, Actions } from '../../types/interfaceModel';
 import PaidTransactions from './PaidTransactions';
 
 interface TransactionMainRightProps {
-  availableProducts:Product[];
+  availableProducts:SelectedProduct[];
   categories:Category[];
 	transactions:Transaction[];
 	unpaidTransactions:Transaction[];

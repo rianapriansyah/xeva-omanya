@@ -63,7 +63,7 @@ const ProductList: React.FC = () => {
 
 	useEffect(() => {
 		setLoading(true);
-		handleFetchProduct();
+		fetchProduct();
 		setLoading(false);
 	}, [selectedStore]);
 
@@ -73,6 +73,7 @@ const ProductList: React.FC = () => {
 		setLoading(false);
 	}, [selectedStore]);
 
+	if (loading) return <p>Loading...</p>;
 	const handleSaveCategory = async (category: Category) => {
 		category.store_id = selectedStore?.id ?? 1;
 		try {
@@ -126,7 +127,7 @@ const ProductList: React.FC = () => {
 						await updateProduct(product.id, product);
 						message = "Diubah!";
 				}
-				handleFetchProduct(); // Refresh the product list
+				fetchProduct(); // Refresh the product list
 				setProductModalState(false); // Close the modal
 				triggerSnack(`${product.name} ${message}`);
 		} catch (error) {
@@ -145,7 +146,7 @@ const ProductList: React.FC = () => {
 						return;
 				} 
 				await deleteProduct(product.id);
-				handleFetchProduct(); // Refresh the product list
+				fetchProduct(); // Refresh the product list
 				setProductModalState(false); // Close the modal
 				triggerSnack(`${product.name} Deleted!`);
 		} catch (error) {
@@ -154,30 +155,19 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleFetchProduct = async () => {
-		try {
-			const data = await getAllProducts(selectedStore?.id);
-			const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
-			setProducts(sortedProduct);
-		} catch (error) {
-			console.error('Error fetching products:', error);
-			triggerSnack('Kesalahan dalam mengambil data produk');
-		}
+	const fetchProduct = async () => {
+		const data = await getAllProducts(selectedStore?.id);
+		const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setProducts(sortedProduct);
 	};
 
 	const fetchCategory = async () => {
-		try {
-			const data = await getAllCategories(selectedStore?.id);
-			const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
-			setCategories(sortedCategories);
-		} catch (error) {
-			console.error('Error fetching categories:', error);
-			alert(error);
-			triggerSnack('Kesalahan dalam mengambil data kategori');
-		}
+		const data = await getAllCategories(selectedStore?.id);
+		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setCategories(sortedCategories);
 	};
 
-	if (loading) return <p>Loading...</p>;
+	
 
 	const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
@@ -212,7 +202,7 @@ const ProductList: React.FC = () => {
   };
 
 	const closeProductModal = () => {
-		handleFetchProduct();
+		fetchProduct();
     setProductModalState(false);
   };
 

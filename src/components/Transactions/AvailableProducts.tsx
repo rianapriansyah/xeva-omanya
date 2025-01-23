@@ -12,7 +12,6 @@ import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Grid2'
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { NumericFormat } from 'react-number-format';
-// import Menu from '../common/Menu';
 
 interface AvailableProduct {
   id: number;

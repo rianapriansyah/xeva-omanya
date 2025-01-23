@@ -5,10 +5,12 @@ import Grid from '@mui/material/Grid2'
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import TransactionMainRight from './TransactionMainRight';
-import { Transaction, Product, Category, TransactionDetailProduct, Actions } from '../../types/interfaceModel';
+import { Transaction, SelectedProduct, Category, TransactionDetailProduct, Actions } from '../../types/interfaceModel';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import { Snackbar } from '@mui/material';
+import { getAllProducts } from '../../services/productService';
+import { getAllCategories } from '../../services/categoryService';
 
 const newTransactionObj:Transaction={
 	id: 0,
@@ -28,7 +30,7 @@ const newTransactionObj:Transaction={
 const TransactionMain: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
 	const [selectedProducts, setSelectedProducts] = useState<TransactionDetailProduct[]>([]);
-	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
+	const [availableProducts, setAvailableProducts] = useState<SelectedProduct[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [unpaidTransactions, setUnpaidTransactions] = useState<Transaction[]>([]);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -63,7 +65,7 @@ const TransactionMain: React.FC = () => {
 	// Fetch static data
 	const fetchStaticData = async () => {
 		fetchPaymentMethods();
-		fetchAvailableProducts();
+		fetchProducts();
 		fetchCategories();
 	};
 
@@ -73,25 +75,17 @@ const TransactionMain: React.FC = () => {
 		fetchTodayPaidTransactions();
 	};
 
-	// Fetch categories
-	const fetchCategories = async () => {
-		try {
-			const response = await api.fetchCategories(selectedStore?.id);
-			setCategories(response.data);
-			setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
-		} catch (error) {
-			console.error('Error fetching categories:', error);
-		}
+	const fetchProducts = async () => {
+		const data = await getAllProducts(selectedStore?.id);
+		const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setAvailableProducts(sortedProduct);
 	};
 
-	// Fetch available transaction
-	const fetchAvailableProducts = async () => {
-		try {
-			const response = await api.fetchProducts(selectedStore?.id);
-			setAvailableProducts(response.data);
-		} catch (error) {
-			console.error('Error fetching available product:', error);
-		}
+	const fetchCategories = async () => {
+		const data = await getAllCategories(selectedStore?.id);
+		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setCategories(sortedCategories);
+		setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
 	};
 
 	// Fetch parked transactions

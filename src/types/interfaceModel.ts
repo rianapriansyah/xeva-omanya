@@ -10,17 +10,15 @@
   category:string;
 }
 
-export interface Product {
+export interface SelectedProduct {
   id: number;
-  transactionId:number;
-  productId:number;
-  name:string;
+  transaction_id:number;
+  product_id:number;
+  product_name:string;
   price:number;
   quantity:number;
   total:number;
-  kitchen:string;
-  category:string;
-  storeId:number;
+  store_id:number;
 }
 
 export interface ProductPayload {
