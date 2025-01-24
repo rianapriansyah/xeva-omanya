@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid2'
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import TransactionMainRight from './TransactionMainRight';
-import { Transaction, SelectedProduct, Category, TransactionDetailProduct, Actions } from '../../types/interfaceModel';
+import { Transaction, Category, TransactionDetail, Actions, Product } from '../../types/interfaceModel';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import { Snackbar } from '@mui/material';
@@ -14,40 +14,28 @@ import { getAllCategories } from '../../services/categoryService';
 
 const newTransactionObj:Transaction={
 	id: 0,
-	userId: "",
-	paymentMethodId: 1,
-	totalAmount: 0,
+	user_name: "",
+	payment_method_id: 1,
+	total_amount: 0,
 	paid: false,
-	tableNo: "",
-	guestName: "",
+	table_no: "",
+	guest_name: "",
 	note: '',
-	grandTotalAmount: 0,
+	grand_total_amount: 0,
 	discount: '',
-	transactionDetails: [],
-	createdAt: ''
+	transaction_details: [],
+	created_at: new Date,
+	store_id:0
 }
 
 const TransactionMain: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
-	const [selectedProducts, setSelectedProducts] = useState<TransactionDetailProduct[]>([]);
-	const [availableProducts, setAvailableProducts] = useState<SelectedProduct[]>([]);
+	const [selectedProducts, setSelectedProductsToTransDetails] = useState<TransactionDetail[]>([]);
+	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [unpaidTransactions, setUnpaidTransactions] = useState<Transaction[]>([]);
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
-	const [selectedTransaction, setTransaction] = useState<Transaction>({
-		id: 0,
-		userId: "",
-		paymentMethodId: 1,
-		totalAmount: 0,
-		paid: false,
-		tableNo: "",
-		guestName: "",
-		note: '',
-		grandTotalAmount: 0,
-		discount: '',
-		transactionDetails: [],
-		createdAt: ''
-	});
+	const [selectedTransaction, setTransaction] = useState<Transaction>(newTransactionObj);
 	
 	const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
 	const [openSnack, setOpenSnack] = React.useState(false);
@@ -91,9 +79,8 @@ const TransactionMain: React.FC = () => {
 	// Fetch parked transactions
 	const fetchUnpaidTransaction = async () => {
 		try {
-			const response = await api.fetchUnpaidTransaction(selectedStore?.id);
-			const fetchedTransactions = response.data;
-			setUnpaidTransactions(fetchedTransactions);
+			// const response = await getAllUnpaidTransactions(selectedStore?.id);
+			// setUnpaidTransactions(response);
 		} catch (error) {
 			console.error('Error fetching transactions:', error);
 		}
@@ -125,7 +112,7 @@ const TransactionMain: React.FC = () => {
 	// Handle action when selecting a parked transaction
 	const handleSelectTransaction = (transaction: any) => {
 		setTransaction(transaction)
-		setSelectedProducts(transaction.transactionDetails.map((detail: any) => ({
+		setSelectedProductsToTransDetails(transaction.transactionDetails.map((detail: any) => ({
 			id: detail.productId,
 			name: detail.productName, // Ensure product name is part of the API response
 			price: detail.price,
@@ -149,29 +136,35 @@ const TransactionMain: React.FC = () => {
 		}
 	};
 
-	const handleAddProduct = (product: any) => {
+	const handleAddProduct = (product: Product) => {
 		if(product.id===99999){
 			return;
 		}
 
 		const existingProduct = selectedProducts.find((p) => p.id === product.id);
 		if (existingProduct) {
-			setSelectedProducts(
+			setSelectedProductsToTransDetails(
 				selectedProducts.map((p) =>
 					p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
 				)
 			);
 		} else {
-			setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+			setSelectedProductsToTransDetails([...selectedProducts, {
+				...product, quantity: 1,
+				transaction_id: 0,
+				product_id: product.id,
+				product_name: product.name,
+				total: 0
+			}]);
 		}
 	};
 
 	const handleUpdateQuantity = (id: number, newQuantity: number) => {
-		setSelectedProducts((prev) =>
+		setSelectedProductsToTransDetails((prev) =>
 			prev.map((product) =>
 				product.id === id ?
 				{ ...product,
-					productId: product.productId,
+					productId: product.product_id,
 					quantity: newQuantity
 				} : product
 			).filter((product) => product.quantity > 0) // Remove products with zero quantity
@@ -179,7 +172,7 @@ const TransactionMain: React.FC = () => {
 	};
 
 	const handleCancelOrder = () => {
-		setSelectedProducts([]);
+		setSelectedProductsToTransDetails([]);
 		setTransaction(newTransactionObj);
 		// setPaymentMethods([]);
 	};
@@ -193,10 +186,10 @@ const TransactionMain: React.FC = () => {
 				await api.deleteTransaction(transaction.id);
 				fetchTransactionData();
 				handleCancelOrder();
-				triggerSnack(`Pesanan atas nama ${transaction.guestName} dihapus!`);
+				triggerSnack(`Pesanan atas nama ${transaction.guest_name} dihapus!`);
 		} catch (error) {
 				console.error('Error delete product:', error);
-				triggerSnack(`Terjadi kesalahan menghapus pesanan ${transaction.guestName}`);
+				triggerSnack(`Terjadi kesalahan menghapus pesanan ${transaction.guest_name}`);
 		}
 	};
 

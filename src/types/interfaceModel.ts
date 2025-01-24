@@ -1,13 +1,14 @@
-﻿export interface TransactionDetailProduct {
+﻿export interface TransactionDetail {
 	id: number;
-	transactionId:number;
-	productId:number;
-	name:string;
+  transaction_id:number
+	product_id:number;
+	product_name:string;
 	price:number;
 	quantity:number;
 	total:number;
   kitchen:string;
   category:string;
+  store_id:number;
 }
 
 export interface SelectedProduct {
@@ -21,7 +22,7 @@ export interface SelectedProduct {
   store_id:number;
 }
 
-export interface ProductPayload {
+export interface Product {
   id: number;
   name:string;
   price:number;
@@ -45,28 +46,18 @@ export interface Guest {
 
 export interface Transaction {
   id: number;
-  userId:string;
-  paymentMethodId: number;
-  totalAmount: number;
+  user_name:string;
+  payment_method_id: number;
+  total_amount: number;
   paid: boolean;
-  tableNo:string
-  guestName:string
+  table_no:string
+  guest_name:string
   note:string;
-  grandTotalAmount:number;
+  grand_total_amount:number;
   discount:string;
-  transactionDetails: TransactionDetail[];
-  createdAt:string;
-}
-
-export interface TransactionDetail {
-	id: number;
-	transactionId:number;
-	productId:number;
-  productName:string;
-	name:string;
-	quantity:number;
-	price:number;
-	total:number;
+  transaction_details: TransactionDetail[];
+  created_at:Date;
+  store_id:number|undefined;
 }
 
 export enum Actions{
@@ -124,4 +115,4 @@ export const StaticFilter=[
     key:"all",
     value:"Sepanjang Waktu"
   },
-]
+];

@@ -1,16 +1,16 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField  } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Category, Actions, ProductPayload } from '../../types/interfaceModel';
+import { Category, Actions, Product } from '../../types/interfaceModel';
 
 
 interface ProductModalProps {
-	product:ProductPayload;
+	product:Product;
 	categories:Category[];
 	isModalOpen: boolean;
 	action: Actions;
 	onCloseModal: () => void;
-	onSaveProduct: (product: ProductPayload) => void; // Callback for saving the product
-	onDeleteProduct: (product: ProductPayload) => void; // Callback for saving the product
+	onSaveProduct: (product: Product) => void; // Callback for saving the product
+	onDeleteProduct: (product: Product) => void; // Callback for saving the product
 }
 
 const ProductModal: React.FC<ProductModalProps> = ({
@@ -23,7 +23,7 @@ const ProductModal: React.FC<ProductModalProps> = ({
 	onDeleteProduct
 }) => {
 
-  const [localProduct, setLocalProduct] = useState<ProductPayload>(product); // Local state for the note
+  const [localProduct, setLocalProduct] = useState<Product>(product); // Local state for the note
 
 	useEffect(() => {
 		setLocalProduct(product); // Update localProduct when the modal opens

@@ -22,22 +22,13 @@ import {
 		List,
 } from '@mui/material';
 import { NumericFormat } from 'react-number-format';
-
-interface ParkedTransaction {
-	id: number;
-	tableNo:string
-	guestName:string
-	paid: boolean;
-	totalAmount: number;
-	paymentMethodId: number;
-	transactionDetails: any[];
-}
+import { Transaction } from '../../types/interfaceModel';
 
 interface ConfirmTransactionProps {
 	note:string;
 	isModalOpen: boolean;
 	selectedProducts: any[];
-	selectedTransaction: ParkedTransaction | null; // Accept the entire transaction
+	selectedTransaction: Transaction | null; // Accept the entire transaction
 	tableNo: string;
 	guestName: string;
 	paymentMethods: any[];
@@ -97,13 +88,6 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 	const handleClearCash = () => {
 			setCashAmount('');
 	};
-
-	// const TextFormat = styled(TextField)(() => ({
-	// 	variant:"outlined",
-	// 	fullWidth:true,
-	// 	margin:"normal",
-	// 	disabled:true
-	// }));
 
 	const ImageButton = styled(ButtonBase)(({ theme }) => ({
 		position: 'relative',
@@ -227,7 +211,7 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 					<Button onClick={() => handleProceedTransaction(false)}>Park</Button>
 					<Button type="submit" onClick={() => {
 							handleProceedTransaction(true);
-						}}>Accept Payment</Button>
+						}}>Pembayaran Diterima</Button>
 				</DialogActions>
 			</DialogContent>
 		</Dialog>

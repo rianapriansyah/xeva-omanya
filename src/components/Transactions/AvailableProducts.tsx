@@ -12,18 +12,7 @@ import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Grid2'
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { NumericFormat } from 'react-number-format';
-
-interface AvailableProduct {
-  id: number;
-  transactionId:number;
-  productId:number;
-  name:string;
-  price:number;
-  quantity:number;
-  total:number;
-  kitchen:string;
-  category:string;
-}
+import { Product } from '../../types/interfaceModel';
 
 interface Category {
   id: number;
@@ -31,7 +20,7 @@ interface Category {
 }
 
 interface AvailableProductsProps {
-	availableProducts:AvailableProduct[];
+	availableProducts:Product[];
 	categories:Category[];
 	onAddProduct: (product: any) => void;
 }

@@ -19,16 +19,16 @@ import SaveIcon from '@mui/icons-material/Save';
 import DiscountModal from './DiscountModal';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { Transaction, TransactionDetailProduct } from '../../types/interfaceModel';
+import { Transaction, TransactionDetail } from '../../types/interfaceModel';
 import AppsIcon from '@mui/icons-material/Apps';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import { getGrandTotal } from '../../services/transactionService';
+import { getGrandTotal, insertTransaction } from '../../services/transactionService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 
 
 interface SelectedProductsProps {
-  products: TransactionDetailProduct[];
+  products: TransactionDetail[];
   selectedTransaction:Transaction;
   onUpdateQuantity: (id: number, newQuantity: number) => void;
   onCancelOrder: () => void;
@@ -45,13 +45,14 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   refreshTransactions
 }) => {
   const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
+  const userRole = useSelector((state: RootState) => state.user.role); // Get the user's role from Redux
   const printerService = new PrinterService();
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const [isNoteModalOpen, setNoteModalState] = useState(false); // Modal state
   const [isDiscModalOpen, setDiscountModalState] = useState(false); // Modal state
-  const [tableNo, setTableNo] = useState(selectedTransaction.tableNo); // Default from transaction
-  const [guestName, setGuestName] = useState(selectedTransaction.guestName); // Default from transaction
-  const [paymentMethodId, setPaymentMethod] = useState(selectedTransaction.paymentMethodId); // Selected payment method
+  const [tableNo, setTableNo] = useState(selectedTransaction.table_no); // Default from transaction
+  const [guestName, setGuestName] = useState(selectedTransaction.guest_name); // Default from transaction
+  const [paymentMethodId, setPaymentMethod] = useState(selectedTransaction.payment_method_id); // Selected payment method
   const [disc, setDiscount] = useState(""); // Modal state
   const [postMessage, setPostMessage] = useState(""); // Modal state
   const [note, setTransactionNote] = useState("");
@@ -86,6 +87,8 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       triggerSnack('Failed to print the receipt.');
     }
   };
+
+  
 
   const onClearProductsAndTransactions = () => {
     onCancelOrder();
@@ -141,12 +144,28 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     const discount = Number(disc);
     const storeId = selectedStore?.id;
 
+    const transaction:Transaction = {
+      user_name: userRole,
+      payment_method_id: 1,
+      total_amount: totalAmount,
+      paid: paid,
+      table_no: tableNo,
+      guest_name: guestName,
+      note: note,
+      grand_total_amount: grandTotalAmount,
+      discount: String(discount),
+      transaction_details: products,
+      created_at: new Date,
+      store_id: selectedStore?.id,
+      id: 0
+    };
+
     const basePayload = {
       storeId,
       tableNo,
       guestName,
       userId: 1,
-      paymentMethodId,
+      paymentMethodId:1,
       totalAmount,
       paid,
       note,
@@ -188,7 +207,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
         triggerSnack('Transaksi Berhasil Diubah!');
       } else {
         // Create new transaction
-        response = await createTransaction(transactionPayload);
+        response = await insertTransaction(transaction, products).then(()=>handlePrint(false));
         triggerSnack('Transaksi Berhasil Dibuat!');
       }
 
@@ -201,7 +220,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       triggerSnack('Failed to save transaction. Please try again.');
     }
     finally{
-      handlePrint(false);
+      //handlePrint(false);
     }
   };
 
@@ -224,12 +243,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       fontSize: 14,
     },
   }));
-
-  //  const isExistingTransaction = selectedTransaction.id !== null;
-
-  // const isTransactionCompleted = products.length !== 0 && (tableNo!=""&& guestName!="");
-
-  
 
   const actions = [
     { icon: <PrintIcon />, name: 'Print', action:"Print" },
@@ -283,8 +296,8 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
             label="Table No:"
             type="text"
             variant="standard"
-            value={selectedTransaction?.tableNo || tableNo}
-            disabled={selectedTransaction?.tableNo!==""}
+            value={selectedTransaction?.table_no || tableNo}
+            disabled={selectedTransaction?.table_no!==""}
             onChange={(e) => setTableNo(e.target.value)}
           />
           <TextField
@@ -294,8 +307,8 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
             label="Guest Name:"
             type="text"
             variant="standard"
-            value={selectedTransaction?.guestName || guestName}
-            disabled={selectedTransaction?.guestName!==""}
+            value={selectedTransaction?.guest_name || guestName}
+            disabled={selectedTransaction?.guest_name!==""}
             onChange={(e) => setGuestName(e.target.value)}
           />
         </Stack>
@@ -343,8 +356,8 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
               {products.map((product) => (
                 <StyledTableRow  key={product.id}>
                   <StyledTableCell>
-                    {product.name}
-                  <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>food</Typography>
+                    {product.product_name}
+                  <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>{product.kitchen}</Typography>
                   </StyledTableCell>
                   <StyledTableCell align="right">{product.quantity} x 
                     <NumericFormat value={product.price} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' '}/>

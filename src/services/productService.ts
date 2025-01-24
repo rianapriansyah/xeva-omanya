@@ -1,4 +1,4 @@
-import { ProductPayload } from '../types/interfaceModel';
+import { Product } from '../types/interfaceModel';
 import supabase from '../utils/supabase'
 
 export async function getAllProducts(store_id:any) {
@@ -7,7 +7,7 @@ export async function getAllProducts(store_id:any) {
   return data;
 }
 
-export async function insertProduct(product:ProductPayload) {
+export async function insertProduct(product:Product) {
   const { data, error } = await supabase.from('products').insert([
 		{
 			name:product.name, 
@@ -21,7 +21,7 @@ export async function insertProduct(product:ProductPayload) {
   return data;
 }
 
-export async function updateProduct(id: number, product:ProductPayload) {
+export async function updateProduct(id: number, product:Product) {
   const { data, error } = await supabase.from('products').update(
 		{
 		name:product.name, 

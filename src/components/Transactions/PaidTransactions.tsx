@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Button, Paper, Stack, styled, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Actions, Transaction } from '../../types/interfaceModel';
@@ -9,18 +9,36 @@ import { RootState } from '../../services/store';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 // import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import { getAllTransactionsByPaidStatus } from '../../services/transactionService';
 
 interface PaidTransactionsProps {
-  paidTransactions:Transaction[];
 	onSelectTransaction: (transaction: Transaction, action:Actions) => void;
 }
 
-const PaidTransactions: React.FC<PaidTransactionsProps> = ({ 
-  paidTransactions,
+const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 	onSelectTransaction
 }) => {
 
+	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
 	const userRole = useSelector((state: RootState) => state.user.role); // Get the user's role from Redux
+	const [paidTransactions, setPaidTransactions] = useState<Transaction[]>([]);
+	let isFetching = false;
+
+	useEffect(() => {
+		fetchUnpaidTransaction();
+	}, [selectedStore]);
+
+	const fetchUnpaidTransaction = async () => {
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, true);
+		console.log(data);
+		const sortedData = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setPaidTransactions(sortedData);
+		isFetching = false;
+	};
+
+	
 	const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
@@ -73,14 +91,17 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 						{paidTransactions.map((transaction) => (
 							<StyledTableRow  key={transaction.id}>
 								<StyledTableCell>
-									{transaction.guestName}
-								<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Meja : {transaction.tableNo}</Typography>
+									{transaction.guest_name}
+								<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Meja : {transaction.table_no}</Typography>
 								</StyledTableCell>
 								<StyledTableCell>
-									<NumericFormat value={transaction.totalAmount} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' IDR '}/>
+									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.total_amount)}
 								</StyledTableCell>
 								<StyledTableCell>
-									{new Date(transaction.createdAt).toLocaleString()}
+									{new Intl.DateTimeFormat('id-ID', {dateStyle: 'full',timeZone: 'Asia/Makassar',}).format(new Date(transaction.created_at))}
+									<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>
+									{new Intl.DateTimeFormat('id-ID', {timeStyle: 'long', timeZone: 'Asia/Makassar',}).format(new Date(transaction.created_at))}
+									</Typography>
 								</StyledTableCell>
 								<StyledTableCell>
 									{userRole}

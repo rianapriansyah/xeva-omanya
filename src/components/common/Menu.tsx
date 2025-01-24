@@ -5,13 +5,15 @@ import MenuItem from '@mui/material/MenuItem';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSelectedStore } from '../../services/storeSlice';
 import { MenuList } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RootState } from '../../services/store';
+import { getAllStores } from '../../services/localStoreService';
 
-const availableStores = [{id:1, name:"Xeva"},{id:2, name:"Omanya"}];
+// const availableStores = [{id:1, name:"Xeva"},{id:2, name:"Omanya"}];
 
 export default function BasicMenu() {
   const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
+  const [availableStores, setAvailableStores] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedMenu, setSelectedMenu]=useState(selectedStore?.name);
   const openMenu = Boolean(anchorEl);
@@ -27,6 +29,15 @@ export default function BasicMenu() {
       handleClose();
       dispatch(setSelectedStore(store));
   };
+
+  const fetchStores = async () => {
+    const data = await getAllStores();
+    setAvailableStores(data);
+  };
+
+  useEffect(() => {
+    fetchStores();
+  }, [selectedStore]);
   
   return (
     <React.Fragment>

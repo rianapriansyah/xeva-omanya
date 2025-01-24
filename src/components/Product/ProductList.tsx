@@ -24,13 +24,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 import { ProductModal, CategoryModal } from '..';
 import { RootState } from '../../services/store';
-import { Category, Actions, ProductPayload } from '../../types/interfaceModel';
+import { Category, Actions, Product } from '../../types/interfaceModel';
 import { useSelector } from 'react-redux';
 import { NumericFormat } from 'react-number-format';
 import { deleteProduct, getAllProducts, insertProduct, updateProduct } from '../../services/productService';
 import { deleteCategory, getAllCategories, insertCategory, updateCategory } from '../../services/categoryService';
 
-const emptyProduct: ProductPayload = {
+const emptyProduct: Product = {
 	id: 0,
 	name:"",
 	price:0,
@@ -48,13 +48,13 @@ const emptyCategory:Category={
 
 const ProductList: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
-	const [products, setProducts] = useState<ProductPayload[]>([]);
+	const [products, setProducts] = useState<Product[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isProductModalOpen, setProductModalState] = useState(false); // Product Modal state
 	const [isCategoryModalOpen, setCategoryModalState] = useState(false); // Category Modal state
-	const [selectedProduct, setSelectedProduct] = useState<ProductPayload>(emptyProduct);
+	const [selectedProduct, setSelectedProduct] = useState<Product>(emptyProduct);
 	const [action, setAction] = useState<Actions>(Actions.Add);
 	const [selectedCategory, setSelectedCategory] = useState<Category>(emptyCategory);
 	const [postMessage, setMessage] = useState(""); 
@@ -114,7 +114,7 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleSaveProduct = async (product: ProductPayload) => {
+	const handleSaveProduct = async (product: Product) => {
 		product.store_id = selectedStore?.id ?? 1;
 		try {
 			let message = "";
@@ -136,7 +136,7 @@ const ProductList: React.FC = () => {
 		}
 	};
 
-	const handleDeleteProduct = async (product: ProductPayload) => {
+	const handleDeleteProduct = async (product: Product) => {
 		product.store_id = selectedStore?.id ?? 1;
 		try {
 				if (product.id === 0) {
@@ -189,7 +189,7 @@ const ProductList: React.FC = () => {
     },
   }));
 
-	const openProductModal = (product:ProductPayload, action:Actions) => {
+	const openProductModal = (product:Product, action:Actions) => {
 		setAction(action);
 		setSelectedProduct(product);
     setProductModalState(true);
