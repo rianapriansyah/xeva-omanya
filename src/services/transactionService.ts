@@ -9,13 +9,17 @@ export async function getAllTransactionsByPaidStatus(store_id:any, paid:boolean)
 
 export async function insertTransaction(transaction:Transaction, details:TransactionDetail[]) {
 	const { data, error } = await supabase.rpc('insert_transaction_with_details', {
-		_user_name: transaction.user_name,
-		_payment_method_id: transaction.payment_method_id,
-		_total_amount: transaction.total_amount,
-		_grand_total_amount: transaction.grand_total_amount,
-		_discount: transaction.discount,
-		_store_id: transaction.store_id,
-		_details: details,
+		user_name: transaction.user_name,
+		payment_method_id: transaction.payment_method_id,
+		total_amount: transaction.total_amount,
+		paid:transaction.paid,
+		table_no:transaction.table_no,
+		guest_name:transaction.guest_name,
+		note:transaction.note,
+		grand_total_amount: transaction.grand_total_amount,
+		discount: transaction.discount,
+		store_id: transaction.store_id,
+		details: details,
 	});
 
   if (error) throw new Error(error.message);

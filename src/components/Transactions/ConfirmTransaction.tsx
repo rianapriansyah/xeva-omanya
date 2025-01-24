@@ -1,216 +1,115 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
-    TextField,
     Box,
     Stack,
-    Typography,
     Button,
-    FormControl,
-    Select,
-    MenuItem,
-    InputLabel,
-		SelectChangeEvent,
 		Chip,
-		styled,
-		ButtonBase,
-		ImageList,
-		ImageListItem,
-		List,
+		ToggleButton,
+		ToggleButtonGroup,
+		Paper,
 } from '@mui/material';
-import { NumericFormat } from 'react-number-format';
-import { Transaction } from '../../types/interfaceModel';
+import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 interface ConfirmTransactionProps {
-	note:string;
 	isModalOpen: boolean;
-	selectedProducts: any[];
-	selectedTransaction: Transaction | null; // Accept the entire transaction
-	tableNo: string;
-	guestName: string;
-	paymentMethods: any[];
 	paymentMethodId: number;
 	onCloseModal: () => void;
-	setTableNo: (value: string) => void;
-	setGuestName: (value: string) => void;
-	handlePaymentMethodChange: (id: number) => void;
-	handleProceedTransaction: (isPaid: boolean) => void;
+	handleProceedTransaction: (isPaid: boolean, paymentMethodId:number) => void;
 }
 
 const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 	isModalOpen,
-	paymentMethods,
 	paymentMethodId,
 	onCloseModal,
-	handlePaymentMethodChange,
 	handleProceedTransaction,
 }) => {
-	if (!isModalOpen) return null;
+	const [cashAmount, setCashAmount] = useState(0); // State for cash input
+	const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
+	const [localPaymentMethod, setLocalPaymentMethod] = useState(paymentMethodId);
+	let isFetching = false;
 
-	const [cashAmount, setCashAmount] = useState(""); // State for cash input
-	const groupOfNumbers = [
-		{label:"first", numbers:["1","2","3"]},
-		{label:"second", numbers:["4","5","6"]},
-		{label:"third", numbers:["7","8","9"]},
-		{label:"last", numbers:["000", "0", "clear"]},
-	];
-
-	const handlePaymentChange = (event: SelectChangeEvent) => {
-			const selectedMethod = Number(event.target.value);
-			handlePaymentMethodChange(selectedMethod);
+	const handlePaymentChange = (event: React.MouseEvent<HTMLElement>, selectedMethod: number) => {
+		if (selectedMethod !== null) {
+			setLocalPaymentMethod(selectedMethod);
 			// Reset cash input if payment method is not "Cash"
-			if (selectedMethod !== paymentMethodId) {
-					setCashAmount('');
+			if (selectedMethod !== 1) {
+					setCashAmount(0);
 			}
+		}
 	};
 
-	const handleNumberPadClick = (value: string) => {
-		if(value==="clear"){
-			handleClearCash();
-			return;
-		}
+	useEffect(() => {
+		setLocalPaymentMethod(1);
+		fetchPaymentMethods();
+	}, []);
 
-		if((value==="000"||value==="0") && cashAmount===""){
-			return;
-		}
-
-		setCashAmount((prev) => (prev === '' ? value : `${prev}${value}`));
+	// Fetch payment methods
+	const fetchPaymentMethods = async () => {
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+		const data = await getAllPaymentMethods();
+		setPaymentMethods(data);
+		isFetching = false;
 	};
 
-	const handleMoneyChipClick = (value: string) => {
-		setCashAmount("");
-		setCashAmount((prev) => (prev === '' ? value : `${prev}${value}`));
+	const handleMoneyChipClick = (value: number) => {
+		setCashAmount(value);
+	//  setCashAmount((prev) => (prev === '' ? value : `${prev}${value}`));
 };
 
-	const handleClearCash = () => {
-			setCashAmount('');
-	};
-
-	const ImageButton = styled(ButtonBase)(({ theme }) => ({
-		position: 'relative',
-		height: 100,
-		[theme.breakpoints.down('sm')]: {
-			width: '100% !important', // Overrides inline-style
-			height: 100,
-		},
-		'&.Mui-focusVisible': {
-			zIndex: 1,
-			'& .MuiImageBackdrop-root': {
-				opacity: 0.15,
-			},
-			'& .MuiImageMarked-root': {
-				opacity: 0,
-			},
-			'& .MuiTypography-root': {
-				border: '4px solid currentColor',
-			},
-		},
-	}));
-
-	const Image = styled('span')(({ theme }) => ({
-		position: 'absolute',
-		left: 0,
-		right: 0,
-		top: 0,
-		bottom: 0,
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'center',
-		color: theme.palette.common.white,
-	}));
-
-	const ImageBackdrop = styled('span')(({ theme }) => ({
-		position: 'absolute',
-		left: 1,
-		right: 1,
-		top: 3,
-		bottom: 3,
-		borderRadius:2,
-		backgroundColor: theme.palette.common.black,
-		opacity: 0.4,
-		transition: theme.transitions.create('opacity'),
-	}));
+if (!isModalOpen) return null;
 
 	return (
 		<Dialog open={isModalOpen} onClose={onCloseModal} fullWidth={true}>
 			<DialogTitle>
-			<NumericFormat value={cashAmount} displayType="input" thousandSeparator="." decimalSeparator="," prefix={'IDR '} customInput={TextField} disabled />
+				{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(cashAmount)}
 			</DialogTitle>
 			<DialogContent>
 				<Box>
 					<Stack spacing={2}>
+					<Paper elevation={0} sx={(theme) => ({
+							display: 'flex',
+							border: `1px solid ${theme.palette.divider}`,
+							flexWrap: 'wrap',
+						})}>
+						<ToggleButtonGroup
+								orientation="vertical"
+								value={localPaymentMethod}
+								exclusive
+								onChange={handlePaymentChange}
+								fullWidth
+							>
+							{paymentMethods.map((method) => (
+								<ToggleButton value={method.id} aria-label="list" key={method.id} color='primary'>
+										{method.name}
+								</ToggleButton>
+							))}
+						</ToggleButtonGroup>
+						</Paper>
 						<Box>
-							<FormControl fullWidth>
-								<InputLabel id="payment-method-label" variant="standard">Payment Method</InputLabel>
-									<Select
-										variant="standard"
-										labelId="payment-method-label"
-										id="payment-method-select"
-										value={String(paymentMethodId)}
-										onChange={handlePaymentChange}>
-										{paymentMethods.map((method) => (
-												<MenuItem key={method.id} value={method.id}>{method.name}</MenuItem>
-										))}
-								</Select>
-							</FormControl>
-						</Box>
-						<Box>
-            <Stack spacing={2}>
-            
+            <Stack spacing={2}>            
             <Stack spacing={1} direction="row">
-								<Chip label="20.000" onClick={() => handleMoneyChipClick("20000")} color="success" disabled={paymentMethodId!==1} />
-								<Chip label="50.000" onClick={() => handleMoneyChipClick("50000")} color="primary" disabled={paymentMethodId!==1}/>
-								<Chip label="100.000" onClick={() => handleMoneyChipClick("100000")} color="error" disabled={paymentMethodId!==1}/>
+								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(20000)} 
+									onClick={() => handleMoneyChipClick(20000)} color="success" disabled={localPaymentMethod!==1} />
+								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(50000)} 
+									onClick={() => handleMoneyChipClick(50000)} color="primary" disabled={localPaymentMethod!==1}/>
+								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(100000)} 
+									onClick={() => handleMoneyChipClick(100000)} color="error" disabled={localPaymentMethod!==1}/>
+								<Chip label="Uang Pas" 
+									onClick={() => handleMoneyChipClick(99)} color="secondary" disabled={localPaymentMethod!==1}/>
 							</Stack>
-            </Stack>
-						
-							{/* <TextField
-									label="Cash Amount"
-									variant="outlined"
-									fullWidth
-									margin="normal"
-									value={cashAmount}
-									disabled /> */}
-							
-							<List>
-								{groupOfNumbers.map((numbers) => (
-									<ImageList cols={3} key={numbers.label}>
-										{numbers.numbers.map((number) => (
-										<ImageListItem key={number}>
-											<ImageButton focusRipple disabled={paymentMethodId!==1} >
-												<ImageBackdrop className="MuiImageBackdrop-root"  />
-												<Image onClick={() => handleNumberPadClick(number)}>
-													<Typography
-														component="span"
-														variant="subtitle1"
-														color="inherit"
-														sx={(theme) => ({
-															position: 'relative',
-															p: 4,
-															pt: 2,
-															pb: `calc(${theme.spacing(1)} + 6px)`,
-														})}
-													>
-														{number}
-													</Typography>
-												</Image>
-											</ImageButton>
-									</ImageListItem>
-								))}
-									</ImageList>
-								))}
-							</List>
+            </Stack>					
 						</Box>
 					</Stack>
 				</Box>
 				<DialogActions>
 					<Button onClick={onCloseModal}>Cancel</Button>
-					<Button onClick={() => handleProceedTransaction(false)}>Park</Button>
 					<Button type="submit" onClick={() => {
-							handleProceedTransaction(true);
+							handleProceedTransaction(true, localPaymentMethod);
 						}}>Pembayaran Diterima</Button>
 				</DialogActions>
 			</DialogContent>

@@ -32,7 +32,6 @@ const UnpaidTransactions: React.FC<UnpaidTransactionsProps> = ({
 		if (isFetching) return; // Prevent fetch if already in progress
   	isFetching = true;
 		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, false);
-		console.log(data);
 		setUnpaidTransactions(data);
 		isFetching = false;
 	};

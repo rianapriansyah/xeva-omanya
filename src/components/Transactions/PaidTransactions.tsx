@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import { Button, Paper, Stack, styled, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Actions, Transaction } from '../../types/interfaceModel';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { NumericFormat } from 'react-number-format';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
@@ -32,7 +31,6 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
 		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, true);
-		console.log(data);
 		const sortedData = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setPaidTransactions(sortedData);
 		isFetching = false;

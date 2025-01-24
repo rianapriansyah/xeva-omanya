@@ -33,11 +33,7 @@ const TransactionMain: React.FC = () => {
 	const [selectedProducts, setSelectedProductsToTransDetails] = useState<TransactionDetail[]>([]);
 	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
-	const [unpaidTransactions, setUnpaidTransactions] = useState<Transaction[]>([]);
-	const [transactions, setTransactions] = useState<Transaction[]>([]);
 	const [selectedTransaction, setTransaction] = useState<Transaction>(newTransactionObj);
-	
-	const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
 	const [openSnack, setOpenSnack] = React.useState(false);
 	const handleCloseSnack = () => setOpenSnack(false);
 	const [postMessage, setPostMessage] = useState(""); // Modal state
@@ -46,21 +42,10 @@ const TransactionMain: React.FC = () => {
 		fetchStaticData();
 	}, [selectedStore]);
 
-	useEffect(() => {
-		fetchTransactionData();
-	}, [selectedStore]);
-
 	// Fetch static data
 	const fetchStaticData = async () => {
-		fetchPaymentMethods();
 		fetchProducts();
 		fetchCategories();
-	};
-
-	// Fetch transaction data
-	const fetchTransactionData = async () => {
-		fetchUnpaidTransaction();
-		fetchTodayPaidTransactions();
 	};
 
 	const fetchProducts = async () => {
@@ -74,39 +59,6 @@ const TransactionMain: React.FC = () => {
 		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setCategories(sortedCategories);
 		setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
-	};
-
-	// Fetch parked transactions
-	const fetchUnpaidTransaction = async () => {
-		try {
-			// const response = await getAllUnpaidTransactions(selectedStore?.id);
-			// setUnpaidTransactions(response);
-		} catch (error) {
-			console.error('Error fetching transactions:', error);
-		}
-	};
-
-	// Fetch Paid transactions by todat
-	const fetchTodayPaidTransactions = async () => {
-		try {
-			// const today = new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Makassar', year:'numeric', month:'2-digit',day:'2-digit'}).format(new Date());
-			const today = new Date().toISOString().split('T')[0];
-			console.log(today);
-			const response = await api.fetchTransactionByDate(selectedStore?.id, today);
-			setTransactions(response.data);
-		} catch (error) {
-			console.error('Error fetching transactions:', error);
-		}
-	};
-
-	// Fetch payment methods
-	const fetchPaymentMethods = async () => {
-		try {
-			const response = await api.fetchPaymentMethods();
-			setPaymentMethods(response.data);
-		} catch (error) {
-			console.error('Error fetching payment methods:', error);
-		}
 	};
 
 	// Handle action when selecting a parked transaction
@@ -184,7 +136,6 @@ const TransactionMain: React.FC = () => {
 						return;
 				} 
 				await api.deleteTransaction(transaction.id);
-				fetchTransactionData();
 				handleCancelOrder();
 				triggerSnack(`Pesanan atas nama ${transaction.guest_name} dihapus!`);
 		} catch (error) {
@@ -212,8 +163,6 @@ const TransactionMain: React.FC = () => {
 							selectedTransaction={selectedTransaction} // Pass the entire transaction object
 							onUpdateQuantity={handleUpdateQuantity}
 							onCancelOrder={handleCancelOrder}
-							paymentMethods = {paymentMethods}
-							refreshTransactions={fetchTransactionData} // Pass the function as a prop
 						/>
 					</Stack>
 				</Grid>
@@ -222,8 +171,6 @@ const TransactionMain: React.FC = () => {
 						onAddProduct={handleAddProduct} 
 						availableProducts={availableProducts}
 						categories={categories}
-						transactions={transactions}
-						unpaidTransactions={unpaidTransactions}
 						onSelectTransaction={handleSelectTransactionWithAction}
 					/>
 				</Grid>
