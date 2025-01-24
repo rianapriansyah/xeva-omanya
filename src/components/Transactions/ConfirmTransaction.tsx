@@ -32,7 +32,7 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 	const [localPaymentMethod, setLocalPaymentMethod] = useState(paymentMethodId);
 	let isFetching = false;
 
-	const handlePaymentChange = (event: React.MouseEvent<HTMLElement>, selectedMethod: number) => {
+	const handlePaymentChange = (_event: React.MouseEvent<HTMLElement>, selectedMethod: number) => {
 		if (selectedMethod !== null) {
 			setLocalPaymentMethod(selectedMethod);
 			// Reset cash input if payment method is not "Cash"

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ConfirmTransaction from './ConfirmTransaction';
-import { createTransaction, updateTransaction } from '../../services/api';
+import { updateTransaction } from '../../services/api';
 import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, Button, TextField, ToggleButtonGroup, ToggleButton, tableCellClasses, TableHead, SpeedDial, SpeedDialAction, Snackbar, Grid2 as Grid } from '@mui/material';
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';

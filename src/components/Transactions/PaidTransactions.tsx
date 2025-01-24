@@ -31,8 +31,7 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
 		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, true);
-		const sortedData = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
-		setPaidTransactions(sortedData);
+		setPaidTransactions(data);
 		isFetching = false;
 	};
 

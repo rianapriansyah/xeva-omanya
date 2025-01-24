@@ -63,13 +63,15 @@ const TransactionMain: React.FC = () => {
 
 	// Handle action when selecting a parked transaction
 	const handleSelectTransaction = (transaction: any) => {
+		console.log(transaction);
 		setTransaction(transaction)
-		setSelectedProductsToTransDetails(transaction.transactionDetails.map((detail: any) => ({
-			id: detail.productId,
-			name: detail.productName, // Ensure product name is part of the API response
+		setSelectedProductsToTransDetails(transaction.transaction_details.map((detail: TransactionDetail) => ({
+			id: detail.id,
+			product_id:detail.product_id,
+			product_name: detail.product_name, // Ensure product name is part of the API response
 			price: detail.price,
 			quantity: detail.quantity,
-			transactionId:transaction.id
+			transaction_id:detail.transaction_id
 		})));
 	};
 

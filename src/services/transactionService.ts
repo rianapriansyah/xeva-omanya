@@ -2,7 +2,7 @@
 import supabase from '../utils/supabase'
 
 export async function getAllTransactionsByPaidStatus(store_id:any, paid:boolean) {
-  const { data, error } = await supabase.from('transactions').select('*, transaction_details (*)').eq('store_id', store_id).eq('paid', paid);
+  const { data, error } = await supabase.from('transactions').select('*, transaction_details (*)').eq('store_id', store_id).eq('paid', paid).order('created_at', {ascending:false});
   if (error) throw new Error(error.message);
   return data;
 }
