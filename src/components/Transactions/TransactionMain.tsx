@@ -63,7 +63,7 @@ const TransactionMain: React.FC = () => {
 
 	// Handle action when selecting a parked transaction
 	const handleSelectTransaction = (transaction: any) => {
-		console.log(transaction);
+		console.log(transaction.id);
 		setTransaction(transaction)
 		setSelectedProductsToTransDetails(transaction.transaction_details.map((detail: TransactionDetail) => ({
 			id: detail.id,
@@ -76,7 +76,7 @@ const TransactionMain: React.FC = () => {
 	};
 
 	// Handle action when selecting a parked transaction
-	const handleSelectTransactionWithAction = (transaction: any, action:Actions) => {
+	const handleSelectTransactionWithAction = (transaction: Transaction, action:Actions) => {
 		switch(action){
 			case Actions.Add:
 				handleSelectTransaction(transaction);

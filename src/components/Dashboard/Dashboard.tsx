@@ -7,8 +7,10 @@ import { RootState } from '../../services/store';
 import { fetchCategories, fetchDashboardData, fetchIncome, fetchProductsSoldData } from '../../services';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
-import FunctionsIcon from '@mui/icons-material/Functions';
-import { Category, StaticFilter } from '../../types/interfaceModel';
+import { Category, DashboardSummary, PaymentMethod, StaticFilter } from '../../types/interfaceModel';
+import { getTransactionsSummaryWithFilter } from '../../services/dashboardService';
+import { getAllPaymentMethods } from '../../services/paymentMethodService';
+
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -20,21 +22,33 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 const Dashboard: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
 	const Offset = styled('div')(({ theme }) => theme.mixins.toolbar);
-	const [dashboardData, setData] = useState<any>([]);
+	const [dashboardData, setData] = useState<DashboardSummary>();
 	const [incomeData, setIncomeData] = useState([]);
 	const [productsSoldData, setProductSoldData] = useState<any>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [expanded, setExpanded] = React.useState<string | false>('');
 	const [selectedFilter, setSelectedFilter] = useState<string>('today');
+	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+	
 	
 	const fetchSummaryData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
-    const response = await fetchDashboardData(storeId, filter, startDate, endDate);
-		const dashboardDataArray = mainInfo.map((info) => ({
-			...info,
-			value: response.data ? response.data[info.metric] || 0 : 0 // Update value from dashboardData
-		}));
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+    const response = await getTransactionsSummaryWithFilter(storeId, filter);
+		
+		setData(response);
+		isFetching = false;
+	};
 
-		setData(dashboardDataArray);
+	const fetchPaymentMethods = async () => {
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+		const response = await getAllPaymentMethods();
+		console.log(response);
+		setPaymentMethods(response);
+		isFetching = false;
 	};
 
 	const fetchCategory = async () => {
@@ -58,8 +72,8 @@ const Dashboard: React.FC = () => {
 	};
 	
 	useEffect(() => {
+		fetchPaymentMethods();
 		fetchSummaryData(selectedStore?.id, selectedFilter);
-		// fetchTransactionData();
 	}, [selectedStore, selectedFilter]);
 
 	useEffect(() => {
@@ -84,37 +98,14 @@ const Dashboard: React.FC = () => {
 		{
 			title: 'Total Transaksi',
 			metric: "totalTransactions",
-			value:0,
-			icon : <ShoppingCartIcon />,
-			prefix : ""
+			value: dashboardData?.total_transactions,
+			icon : <ShoppingCartIcon />
 		},
 		{
 			title: 'Pemasukkan',
 			metric: "totalIncome",
-			value:0,
-			icon : <SavingsIcon />,
-			prefix : "IDR "
-		},
-		{
-			title: 'Penjualan Rata-rata',
-			metric: "averageSalePerTransaction",
-			value:0,
-			icon : <FunctionsIcon />,
-			prefix : "IDR "
-		},
-		{
-			title: 'cash',
-			metric: "cash",
-			value:0,
-			icon : <FunctionsIcon />,
-			prefix : "IDR "
-		},
-		{
-			title: 'cashless',
-			metric: "cashless",
-			value:0,
-			icon : <FunctionsIcon />,
-			prefix : "IDR "
+			value: new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(Number(dashboardData?.total_income)),
+			icon : <SavingsIcon />
 		}
 	];
 
@@ -165,7 +156,7 @@ const Dashboard: React.FC = () => {
 		setExpanded(newExpanded ? panel : false);
 	};
 
-	const handleCarChange = async (e: SelectChangeEvent<string>) => {
+	const handleFilterChange = async (e: SelectChangeEvent<string>) => {
     setSelectedFilter(e.target.value as string);
   };
 
@@ -185,7 +176,7 @@ const Dashboard: React.FC = () => {
           labelId="car-select-label"
           id="car-select"
           value={selectedFilter}
-          onChange={handleCarChange}
+          onChange={handleFilterChange}
           label="Terapkan Filter"
         >
           {StaticFilter.map((filter) => (
@@ -195,13 +186,43 @@ const Dashboard: React.FC = () => {
           ))}
         </Select>
       </FormControl>
+				<List>
+					{mainInfo.map((data) => (
+						<Accordion expanded={expanded === data.metric} onChange={handleChange(data.metric)} key={data.metric} >
+						<AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
+							<Typography component="span" sx={{ width: '90%' }}>
+							{data.title}
+							</Typography>
+							<Typography component="span" sx={{ width: '90%' }}>
+								{data.value}
+							</Typography>
+						</AccordionSummary>
+						<AccordionDetails>
+						<List>
+							{paymentMethods.map((payment) => (
+								<ListItem
+									key={payment.id}
+									secondaryAction={<React.Fragment>
+										<Typography variant="button" gutterBottom>
+										{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(0)}	
+										</Typography>
+									</React.Fragment>}
+								>
+									<ListItemText primary={payment.name} />
+								</ListItem>
+							))}
+							</List>
+						</AccordionDetails>
+						</Accordion>
+					))}
+				</List>
 				<List sx={{ bgcolor: 'background.paper' }}>
-				{dashboardData.map((data: any) => (
+				{mainInfo.map((data: any) => (
 					<ListItem
 						key={data.metric}
 						secondaryAction={<React.Fragment>
 							<Typography variant="button" gutterBottom>
-								{`${data.prefix} ${data.value.toLocaleString("id-ID")}`}
+								{`${data.value}`}
 							</Typography>
 						</React.Fragment>}
 					>

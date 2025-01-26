@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import ProductList from './components/Product/ProductList';
 import TransactionMain from './components/Transactions/TransactionMain';
-import Dashboard from './components/Transactions/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 import AppTheme from './theme/AppTheme';
 import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, styled, Toolbar } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ConfirmTransaction from './ConfirmTransaction';
-import { updateTransaction } from '../../services/api';
 import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, Button, TextField, ToggleButtonGroup, ToggleButton, tableCellClasses, TableHead, SpeedDial, SpeedDialAction, Snackbar, Grid2 as Grid } from '@mui/material';
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import ArrowCircleDownIcon from '@mui/icons-material/ArrowCircleDown';
@@ -22,7 +21,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { Transaction, TransactionDetail } from '../../types/interfaceModel';
 import AppsIcon from '@mui/icons-material/Apps';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import { getGrandTotal, insertTransaction } from '../../services/transactionService';
+import { getGrandTotal, insertTransaction, updateTransaction } from '../../services/transactionService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 
@@ -143,15 +142,15 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       payment_method_id: Number(payment_method_id),
       total_amount: totalAmount,
       paid: paid,
-      table_no: tableNo,
-      guest_name: guestName,
+      table_no: selectedTransaction?.table_no||tableNo,
+      guest_name: selectedTransaction?.guest_name||guestName,
       note: note,
       grand_total_amount: grandTotalAmount,
       discount: String(discount),
       transaction_details: products,
       created_at: new Date,
       store_id: selectedStore?.id,
-      id: 0
+      id: selectedTransaction?.id||0
     };
 
     const basePayload = {
@@ -195,9 +194,11 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
 
     try {
       let response;
+      console.log(transaction.id);
       if (selectedTransaction?.id) {
         // Update existing transaction
-        response = await updateTransaction(selectedTransaction.id, transactionPayload).then(()=>handlePrint(false));
+        // response = await updateTransaction(selectedTransaction.id, transactionPayload).then(()=>handlePrint(false));
+        response = await updateTransaction(transaction, products).then(()=>handlePrint(false));
         triggerSnack('Transaksi Berhasil Diubah!');
       } else {
         // Create new transaction
@@ -347,7 +348,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
                 <StyledTableRow  key={product.id}>
                   <StyledTableCell>
                     {product.product_name}
-                  <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>{product.kitchen}</Typography>
+                  {/* <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>{product.kitchen}</Typography> */}
                   </StyledTableCell>
                   <StyledTableCell align="right">{product.quantity} x 
                     <NumericFormat value={product.price} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' '}/>

@@ -8,7 +8,7 @@ import { RootState } from '../../services/store';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 // import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { getAllTransactionsByPaidStatus } from '../../services/transactionService';
+import { getAllTodayPaidTransactions } from '../../services/transactionService';
 
 interface PaidTransactionsProps {
 	onSelectTransaction: (transaction: Transaction, action:Actions) => void;
@@ -30,7 +30,7 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 	const fetchUnpaidTransaction = async () => {
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
-		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, true);
+		const data = await getAllTodayPaidTransactions(selectedStore?.id);
 		setPaidTransactions(data);
 		isFetching = false;
 	};
@@ -70,7 +70,7 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 					mb: 2,
 					display: "flex",
 					flexDirection: "column",
-					height: "inherit"
+					height: "400"
 				// justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
 				}}>
 				<TableContainer component={Paper}>

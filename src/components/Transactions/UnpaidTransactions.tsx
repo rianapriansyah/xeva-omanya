@@ -8,7 +8,7 @@ import { RootState } from '../../services/store';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 // import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { getAllTransactionsByPaidStatus } from '../../services/transactionService';
+import { getAllTodayUnpaidTransactions } from '../../services/transactionService';
 
 
 interface UnpaidTransactionsProps {
@@ -31,7 +31,7 @@ const UnpaidTransactions: React.FC<UnpaidTransactionsProps> = ({
 	const fetchUnpaidTransaction = async () => {
 		if (isFetching) return; // Prevent fetch if already in progress
   	isFetching = true;
-		const data = await getAllTransactionsByPaidStatus(selectedStore?.id, false);
+		const data = await getAllTodayUnpaidTransactions(selectedStore?.id);
 		setUnpaidTransactions(data);
 		isFetching = false;
 	};
