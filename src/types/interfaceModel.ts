@@ -1,6 +1,13 @@
 ﻿export interface DashboardSummary {
-  total_transactions:number
+  total_transactions:number;
 	total_income:number;
+  details:[{
+    payment_method_id:number;
+    payment_method_name:string;
+    payment_method_category:string;
+    total_transactions:number;
+	  total_income:number;
+  }];
 }
 
 export interface TransactionDetail {

@@ -14,6 +14,15 @@ export async function getTransactionsSummaryWithFilter(store_id :any, date_filte
   return data;
 }
 
+export async function getIncomeData(store_id :any, date_filter:string) {
+  const { data, error } = await supabase.rpc('get_income_by_date', {store_id_filter :store_id, filter:date_filter, start_date_filter:new Date() });
+
+
+  if (error) throw new Error(error.message);
+  
+  return data;
+}
+
 export async function getVTransactionsSummary(store_id :any, date_filter:string) {
   const { data, error } = await supabase.from('view_transaction_summary').select('*').eq('store_id',store_id).eq('filter', date_filter).single();
   if (error) throw new Error(error.message);

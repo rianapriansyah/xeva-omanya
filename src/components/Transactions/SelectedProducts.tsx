@@ -135,7 +135,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     );
     const grandTotalAmount = getGrandTotal(products, disc);
     const discount = Number(disc);
-    const storeId = selectedStore?.id;
 
     const transaction:Transaction = {
       user_name: userRole,
@@ -153,51 +152,12 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       id: selectedTransaction?.id||0
     };
 
-    const basePayload = {
-      storeId,
-      tableNo,
-      guestName,
-      userId: 1,
-      paymentMethodId:1,
-      totalAmount,
-      paid,
-      note,
-      discount,
-      grandTotalAmount,
-      transactionDetails: products.map((product) => ({
-        transactionId:selectedTransaction?.id,
-        productId:product.id,
-        quantity: product.quantity,
-        price: product.price,
-        total: product.price * product.quantity
-      })),
-    };
-
-    const transactionPayload = selectedTransaction.id
-      ? {
-          ...selectedTransaction, // Keep existing fields from the selected transaction
-          paymentMethodId: 1, // Overwrite only these fields
-          totalAmount,
-          paid,
-          note,
-          discount,
-          grandTotalAmount,
-          transactionDetails: products.map((product) => ({
-            transactionId:selectedTransaction.id,
-            productId:product.id,
-            quantity: product.quantity,
-            price: product.price,
-            total: product.price * product.quantity
-          })),
-        }
-      : basePayload;
 
     try {
       let response;
       console.log(transaction.id);
       if (selectedTransaction?.id) {
         // Update existing transaction
-        // response = await updateTransaction(selectedTransaction.id, transactionPayload).then(()=>handlePrint(false));
         response = await updateTransaction(transaction, products).then(()=>handlePrint(false));
         triggerSnack('Transaksi Berhasil Diubah!');
       } else {

@@ -70,11 +70,11 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 					mb: 2,
 					display: "flex",
 					flexDirection: "column",
-					height: "400"
+					height: 'inherit'
 				// justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
 				}}>
-				<TableContainer component={Paper}>
-					<Table>
+				<TableContainer component={Paper} sx={{ height: 600 }}>
+					<Table stickyHeader>
 						<TableHead>
 							<TableRow>
 								<StyledTableCell>Nama Pemesan</StyledTableCell>

@@ -4,11 +4,11 @@ import { BarChart, LineChart } from '@mui/x-charts';
 import Grid from '@mui/material/Grid2'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
-import { fetchCategories, fetchDashboardData, fetchIncome, fetchProductsSoldData } from '../../services';
+import { fetchIncome, fetchProductsSoldData } from '../../services';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
 import { Category, DashboardSummary, PaymentMethod, StaticFilter } from '../../types/interfaceModel';
-import { getTransactionsSummaryWithFilter } from '../../services/dashboardService';
+import { getIncomeData, getTransactionsSummaryWithFilter } from '../../services/dashboardService';
 import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
@@ -18,6 +18,7 @@ import MuiAccordionSummary, {
 } from '@mui/material/AccordionSummary';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
+import { getAllCategories } from '../../services/categoryService';
 
 const Dashboard: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
@@ -36,7 +37,6 @@ const Dashboard: React.FC = () => {
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
     const response = await getTransactionsSummaryWithFilter(storeId, filter);
-		
 		setData(response);
 		isFetching = false;
 	};
@@ -46,25 +46,34 @@ const Dashboard: React.FC = () => {
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
 		const response = await getAllPaymentMethods();
-		console.log(response);
 		setPaymentMethods(response);
 		isFetching = false;
 	};
 
 	const fetchCategory = async () => {
-			try {
-				const data = await fetchCategories(selectedStore?.id);
-				const sortedCategories = data.data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name))
-				setCategories(sortedCategories);
-			} catch (error) {
-				console.error('Error fetching categories:', error);
-			}
-		};
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+		const data = await getAllCategories(selectedStore?.id);
+		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
+		setCategories(sortedCategories);
+		isFetching = false;
+	};
 
 	const fetchIncomeData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
-    const response = await fetchIncome(storeId, filter, startDate, endDate);
-		setIncomeData(response.data);
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+    const response = await getIncomeData(storeId, filter);
+		console.log(response);
+		setIncomeData(response);
+		isFetching = false;
 	};
+
+	const xAxisData = incomeData? incomeData.map((point:any) => new Date(point.transaction_date).getDate()) : []; // Extract dates
+	const seriesData = incomeData? incomeData?.map((point:any) => point.total_income) : []; // Extract total income
+
+	console.log(incomeData);
 
 	const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
     const response = await fetchProductsSoldData(storeId, filter, startDate, endDate);
@@ -87,27 +96,9 @@ const Dashboard: React.FC = () => {
 	}, [selectedStore, selectedFilter]);
 
 	useEffect(() => {
-		fetchProductsSold(selectedStore?.id, selectedFilter);
+		//fetchProductsSold(selectedStore?.id, selectedFilter);
 		// fetchTransactionData();
 	}, [selectedStore, selectedFilter]);
-
-	const xAxisData = incomeData.map((point:any) => new Date(point.date).getDate()); // Extract dates
-	const seriesData = incomeData.map((point:any) => point.totalIncome); // Extract total income
-
-	const mainInfo  = [
-		{
-			title: 'Total Transaksi',
-			metric: "totalTransactions",
-			value: dashboardData?.total_transactions,
-			icon : <ShoppingCartIcon />
-		},
-		{
-			title: 'Pemasukkan',
-			metric: "totalIncome",
-			value: new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(Number(dashboardData?.total_income)),
-			icon : <SavingsIcon />
-		}
-	];
 
 	const chartSetting = {
 		series: [{ dataKey: 'quantitySold' }],
@@ -162,15 +153,13 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<Grid>
-			
 			<Box sx={{borderRadius:"10px", mb: 2, display: "flex", flexDirection: "column",height: "inherit"
 				// justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
 				}}>
-					
 				<Typography variant="h6" gutterBottom>
 					Dashboard
 				</Typography>
-				<FormControl fullWidth variant="outlined" style={{ marginBottom: '16px' }}>
+				<FormControl variant="outlined" style={{ marginBottom: '16px' }}>
         <InputLabel id="car-select-label">Pilih Filter</InputLabel>
         <Select
           labelId="car-select-label"
@@ -186,54 +175,61 @@ const Dashboard: React.FC = () => {
           ))}
         </Select>
       </FormControl>
-				<List>
-					{mainInfo.map((data) => (
-						<Accordion expanded={expanded === data.metric} onChange={handleChange(data.metric)} key={data.metric} >
+				<List sx={{ bgcolor: 'background.paper' }}>
+					<ListItem
+						key="1"
+						secondaryAction={<React.Fragment>
+							<Typography variant="button" gutterBottom>
+								{dashboardData?.total_transactions}
+							</Typography>
+						</React.Fragment>}>
+						<ListItemAvatar>
+							<Avatar>
+								<ShoppingCartIcon />
+							</Avatar>
+						</ListItemAvatar>
+						<ListItemText primary="Total Transaksi" />
+					</ListItem>
+					<ListItem
+						key="2"
+						secondaryAction={<React.Fragment>
+							<Typography variant="button" gutterBottom>
+							{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(Number(dashboardData?.total_income))}
+							</Typography>
+						</React.Fragment>}>
+						<ListItemAvatar>
+							<Avatar>
+								<ShoppingCartIcon />
+							</Avatar>
+						</ListItemAvatar>
+						<ListItemText primary="Total Pemasukan" />
+					</ListItem>
+					<Accordion>
 						<AccordionSummary aria-controls="panel1d-content" id="panel1d-header">
 							<Typography component="span" sx={{ width: '90%' }}>
-							{data.title}
+							Detail
 							</Typography>
 							<Typography component="span" sx={{ width: '90%' }}>
-								{data.value}
+								{/* {data.value} */}
 							</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
 						<List>
-							{paymentMethods.map((payment) => (
+							{dashboardData?.details.map((payment) => (
 								<ListItem
-									key={payment.id}
+									key={payment.payment_method_id}
 									secondaryAction={<React.Fragment>
 										<Typography variant="button" gutterBottom>
-										{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(0)}	
+										{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(payment.total_income)}	
 										</Typography>
 									</React.Fragment>}
 								>
-									<ListItemText primary={payment.name} />
+									<ListItemText primary={payment.payment_method_name} />
 								</ListItem>
 							))}
 							</List>
 						</AccordionDetails>
 						</Accordion>
-					))}
-				</List>
-				<List sx={{ bgcolor: 'background.paper' }}>
-				{mainInfo.map((data: any) => (
-					<ListItem
-						key={data.metric}
-						secondaryAction={<React.Fragment>
-							<Typography variant="button" gutterBottom>
-								{`${data.value}`}
-							</Typography>
-						</React.Fragment>}
-					>
-						<ListItemAvatar>
-							<Avatar>
-								{data.icon}
-							</Avatar>
-						</ListItemAvatar>
-						<ListItemText primary={data.title} />
-					</ListItem>
-				))}
 				</List>
 			</Box>
 			<Box component="section" sx={{ flexGrow:1, p: 2, border: '1px dashed grey', borderRadius:"10px" }}>

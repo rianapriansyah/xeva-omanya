@@ -74,8 +74,8 @@ const UnpaidTransactions: React.FC<UnpaidTransactionsProps> = ({
 					height: "inherit"
 				// justifyContent="flex-end" # DO NOT USE THIS WITH 'scroll'
 				}}>
-				<TableContainer component={Paper}>
-					<Table>
+				<TableContainer component={Paper} sx={{ height: 600 }}>
+					<Table stickyHeader>
 						<TableHead>
 							<TableRow>
 								<StyledTableCell>Nama Pemesan</StyledTableCell>

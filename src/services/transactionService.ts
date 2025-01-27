@@ -15,6 +15,13 @@ export async function getAllTodayUnpaidTransactions(store_id:any) {
   return data;
 }
 
+export async function getAllTransactions(store_id:any) {
+  const { data, error } = await supabase.from('transactions').select('*, transaction_details (*)').eq('store_id', store_id).order('created_at', {ascending:false});
+
+	if (error) throw new Error(error.message);
+  return data;
+}
+
 export async function insertTransaction(transaction:Transaction, details:TransactionDetail[]) {
 	const { data, error } = await supabase.rpc('insert_transaction_with_details', {
 		user_name: transaction.user_name,
