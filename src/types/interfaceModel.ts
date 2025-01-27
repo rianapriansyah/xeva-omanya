@@ -91,6 +91,12 @@ export interface PaymentMethod {
   category: string;
 }
 
+export interface PrinterContent {
+  shop_name: string;
+  name: string;
+  category: string;
+}
+
 export const isToday = (dateString: string): boolean => {
   const today = new Date();
   const date = new Date(dateString);

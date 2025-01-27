@@ -4,7 +4,6 @@ import { BarChart, LineChart } from '@mui/x-charts';
 import Grid from '@mui/material/Grid2'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
-import { fetchIncome, fetchProductsSoldData } from '../../services';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
 import { Category, DashboardSummary, PaymentMethod, StaticFilter } from '../../types/interfaceModel';
@@ -65,7 +64,6 @@ const Dashboard: React.FC = () => {
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
     const response = await getIncomeData(storeId, filter);
-		console.log(response);
 		setIncomeData(response);
 		isFetching = false;
 	};
@@ -73,12 +71,11 @@ const Dashboard: React.FC = () => {
 	const xAxisData = incomeData? incomeData.map((point:any) => new Date(point.transaction_date).getDate()) : []; // Extract dates
 	const seriesData = incomeData? incomeData?.map((point:any) => point.total_income) : []; // Extract total income
 
-	console.log(incomeData);
 
-	const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
-    const response = await fetchProductsSoldData(storeId, filter, startDate, endDate);
-		setProductSoldData(response.data);
-	};
+	// const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
+  //   const response = await fetchProductsSoldData(storeId, filter, startDate, endDate);
+	// 	setProductSoldData(response.data);
+	// };
 	
 	useEffect(() => {
 		fetchPaymentMethods();

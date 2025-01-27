@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import  * as api from '../../services/api';
 import SelectedProducts from './SelectedProducts';
 import Grid from '@mui/material/Grid2'
 import Box from '@mui/material/Box';
@@ -11,6 +10,7 @@ import { RootState } from '../../services/store';
 import { Snackbar } from '@mui/material';
 import { getAllProducts } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
+import { deleteTransactionById } from '../../services/transactionService';
 
 const newTransactionObj:Transaction={
 	id: 0,
@@ -82,7 +82,7 @@ const TransactionMain: React.FC = () => {
 				handleSelectTransaction(transaction);
 				break;
 			case Actions.Print:
-				alert(action);
+				handlePrintTransaction(transaction);
 				break;
 			case Actions.Delete:
 				handleDeleteTransaction(transaction);
@@ -137,7 +137,22 @@ const TransactionMain: React.FC = () => {
 						console.error('Error delete transaction:', transaction);
 						return;
 				} 
-				await api.deleteTransaction(transaction.id);
+				await deleteTransactionById(transaction.id);
+				handleCancelOrder();
+				triggerSnack(`Pesanan atas nama ${transaction.guest_name} dihapus!`);
+		} catch (error) {
+				console.error('Error delete product:', error);
+				triggerSnack(`Terjadi kesalahan menghapus pesanan ${transaction.guest_name}`);
+		}
+	};
+
+	const handlePrintTransaction = async (transaction: Transaction) => {
+		try {
+				if (transaction.id === 0) {
+						console.error('Error delete transaction:', transaction);
+						return;
+				} 
+				await deleteTransactionById(transaction.id);
 				handleCancelOrder();
 				triggerSnack(`Pesanan atas nama ${transaction.guest_name} dihapus!`);
 		} catch (error) {

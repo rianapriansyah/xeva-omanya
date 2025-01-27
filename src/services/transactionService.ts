@@ -59,6 +59,13 @@ export async function updateTransaction(transaction:Transaction, details:Transac
   return data;
 }
 
+export async function deleteTransactionById(id:number) {
+  const { error } = await supabase.from('transactions').delete().eq('id', id);
+
+	if (error) throw new Error(error.message);
+}
+
+
 export const getGrandTotal = (products:any, discount:any) => {
 	const totalAmount = products.reduce((sum: number, product: { price: number; quantity: number; }) => sum + product.price * product.quantity, 0).toFixed(2);
 
