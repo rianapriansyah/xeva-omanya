@@ -29,3 +29,10 @@ export async function getVTransactionsSummary(store_id :any, date_filter:string)
   
   return data;
 }
+
+export async function getProductsSold(store_id :any, date_filter:string) {
+  const { data, error } = await supabase.rpc('get_products_sold_json', {store_id_filter :store_id, filter:date_filter, start_date_filter:new Date() });
+  if (error) throw new Error(error.message);
+  
+  return data;
+}

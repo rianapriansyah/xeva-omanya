@@ -7,7 +7,7 @@ import { RootState } from '../../services/store';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
 import { Category, DashboardSummary, PaymentMethod, StaticFilter } from '../../types/interfaceModel';
-import { getIncomeData, getTransactionsSummaryWithFilter } from '../../services/dashboardService';
+import { getIncomeData, getProductsSold, getTransactionsSummaryWithFilter } from '../../services/dashboardService';
 import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
@@ -72,10 +72,14 @@ const Dashboard: React.FC = () => {
 	const seriesData = incomeData? incomeData?.map((point:any) => point.total_income) : []; // Extract total income
 
 
-	// const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
-  //   const response = await fetchProductsSoldData(storeId, filter, startDate, endDate);
-	// 	setProductSoldData(response.data);
-	// };
+	const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+    const response = await getProductsSold(storeId, filter);
+		setProductSoldData(response);
+		isFetching = false;
+	};
 	
 	useEffect(() => {
 		fetchPaymentMethods();
@@ -84,21 +88,18 @@ const Dashboard: React.FC = () => {
 
 	useEffect(() => {
 		fetchIncomeData(selectedStore?.id, selectedFilter);
-		// fetchTransactionData();
 	}, [selectedStore, selectedFilter]);
 
 	useEffect(() => {
 		fetchCategory();
-		// fetchTransactionData();
 	}, [selectedStore, selectedFilter]);
 
 	useEffect(() => {
-		//fetchProductsSold(selectedStore?.id, selectedFilter);
-		// fetchTransactionData();
+		fetchProductsSold(selectedStore?.id, selectedFilter);
 	}, [selectedStore, selectedFilter]);
 
 	const chartSetting = {
-		series: [{ dataKey: 'quantitySold' }],
+		series: [{ dataKey: 'quantity_sold' }],
 		height: 400,
 	};
 
@@ -252,8 +253,8 @@ const Dashboard: React.FC = () => {
 							<AccordionDetails>
 								<BarChart
 									margin={{ top: 5, right: 10, bottom: 80, left: 170}}
-									dataset={productsSoldData.filter((x: { categoryName: string; })=>x.categoryName==category.name)}
-									yAxis={[{ scaleType: 'band', dataKey: 'productName', tickPlacement:'middle'}]}
+									dataset={productsSoldData.filter((x: { category: string; })=>x.category==category.name)}
+									yAxis={[{ scaleType: 'band', dataKey: 'product_name', tickPlacement:'middle'}]}
 									layout='horizontal'
 									barLabel="value"
 									xAxis= {[{label: 'Terjual', tickLabelStyle:{fontSize:0}, disableTicks:true } ]}
