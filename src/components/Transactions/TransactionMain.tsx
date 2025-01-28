@@ -39,32 +39,42 @@ const TransactionMain: React.FC = () => {
 	const [postMessage, setPostMessage] = useState(""); // Modal state
 
 	useEffect(() => {
-		fetchStaticData();
+		fetchProducts();
 	}, [selectedStore]);
 
-	// Fetch static data
-	const fetchStaticData = async () => {
-		fetchProducts();
-		fetchCategories();
-	};
+	useEffect(() => {
+		fetchCategories();		
+	}, [selectedStore]);
+
+	useEffect(() => {
+		setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
+	}, [selectedStore]);
 
 	const fetchProducts = async () => {
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
 		const data = await getAllProducts(selectedStore?.id);
 		const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setAvailableProducts(sortedProduct);
+		isFetching = false;
 	};
 
 	const fetchCategories = async () => {
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
 		const data = await getAllCategories(selectedStore?.id);
+		isFetching = false;
 		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setCategories(sortedCategories);
-		setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
+		
+		console.log(sortedCategories);
 	};
 
 	// Handle action when selecting a parked transaction
 	const handleSelectTransaction = (transaction: any) => {
-		console.log(transaction.id);
-		setTransaction(transaction)
+		setTransaction(transaction);
 		setSelectedProductsToTransDetails(transaction.transaction_details.map((detail: TransactionDetail) => ({
 			id: detail.id,
 			product_id:detail.product_id,
@@ -111,6 +121,7 @@ const TransactionMain: React.FC = () => {
 				total: 0
 			}]);
 		}
+
 	};
 
 	const handleUpdateQuantity = (id: number, newQuantity: number) => {

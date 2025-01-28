@@ -47,6 +47,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const [isDiscModalOpen, setDiscountModalState] = useState(false); // Modal state
   const [tableNo, setTableNo] = useState(selectedTransaction.table_no); // Default from transaction
   const [guestName, setGuestName] = useState(selectedTransaction.guest_name); // Default from transaction
+  const [grandTotal, setGrandTotal] = useState(selectedTransaction.grand_total_amount); // Default from transaction
   const [paymentMethodId, setPaymentMethod] = useState(1); // Selected payment method
   const [disc, setDiscount] = useState(""); // Modal state
   const [postMessage, setPostMessage] = useState(""); // Modal state
@@ -99,6 +100,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
 
   const handleUpdateTransactionDiscount = (newDiscount: string) => {
     setDiscount(newDiscount);
+    setGrandTotal(getGrandTotal(products, Number(newDiscount)));
     setDiscountModalState(false);
   };
 
@@ -133,7 +135,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       (sum, product) => sum + product.price * product.quantity,
       0
     );
-    const grandTotalAmount = getGrandTotal(products, disc);
     const discount = Number(disc);
 
     const transaction:Transaction = {
@@ -144,7 +145,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       table_no: selectedTransaction?.table_no||tableNo,
       guest_name: selectedTransaction?.guest_name||guestName,
       note: note,
-      grand_total_amount: grandTotalAmount,
+      grand_total_amount: selectedTransaction?.grand_total_amount||grandTotal,
       discount: String(discount),
       transaction_details: products,
       created_at: new Date,
@@ -372,6 +373,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       </Stack>
       {/* ConfirmTransaction Modal */}
       <ConfirmTransaction
+        grandTotal={getGrandTotal(products, disc)}
         isModalOpen={isModalOpen}
         paymentMethodId={paymentMethodId}
         onCloseModal={() => setIsModalOpen(false)}

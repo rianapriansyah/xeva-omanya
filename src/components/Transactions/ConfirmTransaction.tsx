@@ -11,10 +11,12 @@ import {
 		ToggleButton,
 		ToggleButtonGroup,
 		Paper,
+		Typography,
 } from '@mui/material';
 import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 interface ConfirmTransactionProps {
+	grandTotal:number;
 	isModalOpen: boolean;
 	paymentMethodId: number;
 	onCloseModal: () => void;
@@ -22,6 +24,7 @@ interface ConfirmTransactionProps {
 }
 
 const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
+	grandTotal,
 	isModalOpen,
 	paymentMethodId,
 	onCloseModal,
@@ -59,16 +62,34 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 	const handleMoneyChipClick = (value: number) => {
 		setCashAmount(value);
 	//  setCashAmount((prev) => (prev === '' ? value : `${prev}${value}`));
-};
+	};
+
+	const disabledMoyeChip = (value: number) => {
+		let disabled = false;
+		if(localPaymentMethod!==1){
+			disabled = true;
+		}
+		else if(value < grandTotal){
+			disabled = true;
+		}
+		
+		return disabled;
+	};
 
 if (!isModalOpen) return null;
 
 	return (
 		<Dialog open={isModalOpen} onClose={onCloseModal} fullWidth={true}>
 			<DialogTitle>
-				{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(cashAmount)}
-			</DialogTitle>
+			Yang harus dibayar {new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(grandTotal)}
+			<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>
+			{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(cashAmount)} {"- "}
+			{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(grandTotal)} {" = "} 
+			{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(cashAmount - grandTotal)}
+				</Typography>
+			</DialogTitle> 
 			<DialogContent>
+			
 				<Box>
 					<Stack spacing={2}>
 					<Paper elevation={0} sx={(theme) => ({
@@ -94,13 +115,13 @@ if (!isModalOpen) return null;
             <Stack spacing={2}>            
             <Stack spacing={1} direction="row">
 								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(20000)} 
-									onClick={() => handleMoneyChipClick(20000)} color="success" disabled={localPaymentMethod!==1} />
+									onClick={() => handleMoneyChipClick(20000)} color="success" disabled={disabledMoyeChip(20000)} />
 								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(50000)} 
 									onClick={() => handleMoneyChipClick(50000)} color="primary" disabled={localPaymentMethod!==1}/>
 								<Chip label={new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(100000)} 
 									onClick={() => handleMoneyChipClick(100000)} color="error" disabled={localPaymentMethod!==1}/>
 								<Chip label="Uang Pas" 
-									onClick={() => handleMoneyChipClick(99)} color="secondary" disabled={localPaymentMethod!==1}/>
+									onClick={() => handleMoneyChipClick(grandTotal)} color="secondary" disabled={localPaymentMethod!==1}/>
 							</Stack>
             </Stack>					
 						</Box>

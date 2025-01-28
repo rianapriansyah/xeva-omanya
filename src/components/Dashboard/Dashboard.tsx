@@ -6,9 +6,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SavingsIcon from '@mui/icons-material/Savings';
-import { Category, DashboardSummary, PaymentMethod, StaticFilter } from '../../types/interfaceModel';
+import { Category, DashboardSummary, StaticFilter } from '../../types/interfaceModel';
 import { getIncomeData, getProductsSold, getTransactionsSummaryWithFilter } from '../../services/dashboardService';
-import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionSummary, {
@@ -28,7 +27,6 @@ const Dashboard: React.FC = () => {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [expanded, setExpanded] = React.useState<string | false>('');
 	const [selectedFilter, setSelectedFilter] = useState<string>('today');
-	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 	
 	
 	const fetchSummaryData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
@@ -37,15 +35,6 @@ const Dashboard: React.FC = () => {
 		isFetching = true;
     const response = await getTransactionsSummaryWithFilter(storeId, filter);
 		setData(response);
-		isFetching = false;
-	};
-
-	const fetchPaymentMethods = async () => {
-		let isFetching = false;
-		if (isFetching) return; // Prevent fetch if already in progress
-		isFetching = true;
-		const response = await getAllPaymentMethods();
-		setPaymentMethods(response);
 		isFetching = false;
 	};
 
@@ -82,7 +71,6 @@ const Dashboard: React.FC = () => {
 	};
 	
 	useEffect(() => {
-		fetchPaymentMethods();
 		fetchSummaryData(selectedStore?.id, selectedFilter);
 	}, [selectedStore, selectedFilter]);
 
@@ -197,7 +185,7 @@ const Dashboard: React.FC = () => {
 						</React.Fragment>}>
 						<ListItemAvatar>
 							<Avatar>
-								<ShoppingCartIcon />
+								<SavingsIcon />
 							</Avatar>
 						</ListItemAvatar>
 						<ListItemText primary="Total Pemasukan" />
