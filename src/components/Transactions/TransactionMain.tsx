@@ -68,8 +68,6 @@ const TransactionMain: React.FC = () => {
 		isFetching = false;
 		const sortedCategories = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setCategories(sortedCategories);
-		
-		console.log(sortedCategories);
 	};
 
 	// Handle action when selecting a parked transaction

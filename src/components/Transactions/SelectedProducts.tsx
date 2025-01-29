@@ -60,22 +60,24 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const handlePrint = async (fromSpeedDial:boolean) => {
     try {
       triggerSnack("Mencetak");
-      await printerService.connect();
+      //await printerService.connect();
 
       const details = {
-          shopName: 'Xeva Coffee',
-          guestName: guestName,
+          shopName: String(selectedStore?.name),
+          guestName: selectedTransaction.guest_name,
           selectedProducts: products.map((detail:any) => ({
-            name: detail.name,   // Assuming 'productName' exists in the transaction details
+            name: detail.product_name,   // Assuming 'productName' exists in the transaction details
             quantity: detail.quantity, // Quantity of the product
             price: detail.price, // Price of the product
             total: detail.price * detail.quantity
           })),
           paid: fromSpeedDial ? "-- Belum Bayar --" : "-- Lunas --",
           discount:disc,
-          cashierName: 'chaotic_noobz'
+          cashierName: userRole
       };
-      await printerService.printReceipt(details);
+
+      console.log(details);
+      //await printerService.printReceipt(details);
       triggerSnack('Receipt printed successfully!')
     } catch (error) {
       console.error('Error:', error);
@@ -156,7 +158,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
 
     try {
       let response;
-      console.log(transaction.id);
       if (selectedTransaction?.id) {
         // Update existing transaction
         response = await updateTransaction(transaction, products).then(()=>handlePrint(false));
