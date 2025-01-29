@@ -60,7 +60,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const handlePrint = async (fromSpeedDial:boolean) => {
     try {
       triggerSnack("Mencetak");
-      //await printerService.connect();
+      await printerService.connect();
 
       const details = {
           shopName: String(selectedStore?.name),
@@ -77,7 +77,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       };
 
       console.log(details);
-      //await printerService.printReceipt(details);
+      await printerService.printReceipt(details);
       triggerSnack('Receipt printed successfully!')
     } catch (error) {
       console.error('Error:', error);
