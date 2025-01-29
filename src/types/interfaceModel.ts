@@ -82,7 +82,7 @@ export enum Actions{
 export interface User {
   id: number;
   name: string;
-  role: string; // Add role field
+  role: string; 
 }
 
 export interface PaymentMethod {
