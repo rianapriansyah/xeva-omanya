@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
 	const [selectedFilter, setSelectedFilter] = useState<string>('today');
 	
 	
-	const fetchSummaryData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
+	const fetchSummaryData = async (storeId: any, filter: string, _startDate?: string, _endDate?: string) => {
 		let isFetching = false;
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
@@ -48,7 +48,7 @@ const Dashboard: React.FC = () => {
 		isFetching = false;
 	};
 
-	const fetchIncomeData = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
+	const fetchIncomeData = async (storeId: any, filter: string, _startDate?: string, _endDate?: string) => {
 		let isFetching = false;
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
 	const seriesData = incomeData? incomeData?.map((point:any) => point.total_income) : []; // Extract total income
 
 
-	const fetchProductsSold = async (storeId: any, filter: string, startDate?: string, endDate?: string) => {
+	const fetchProductsSold = async (storeId: any, filter: string, _startDate?: string, _endDate?: string) => {
 		let isFetching = false;
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
