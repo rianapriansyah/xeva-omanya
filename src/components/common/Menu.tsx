@@ -41,7 +41,7 @@ export default function BasicMenu() {
   
   return (
     <React.Fragment>
-      <Button 
+      <Button variant='outlined'
         onClick={handleClick}
         >
         Store

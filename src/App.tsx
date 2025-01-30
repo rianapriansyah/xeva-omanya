@@ -4,7 +4,7 @@ import ProductList from './components/Product/ProductList';
 import TransactionMain from './components/Transactions/TransactionMain';
 import Dashboard from './components/Dashboard/Dashboard';
 import AppTheme from './theme/AppTheme';
-import { AppBar, Box, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, styled, Toolbar } from '@mui/material';
+import { AppBar, Box, Drawer, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, styled, Toolbar } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Typography from '@mui/material/Typography';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -105,7 +105,7 @@ const App: React.FC = () => {
           </Typography>
           <Stack spacing={2} direction="row">
           <RoleSelector />
-          <Divider orientation="vertical" />
+          
           <Menu/>
           </Stack>
           
