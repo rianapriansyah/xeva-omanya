@@ -56,7 +56,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const handleClose = () => setOpen(false);
   const handleCloseSnack = () => setOpenSnack(false);
 
-  const handlePrint = async (fromSpeedDial:boolean) => {
+  const handlePrint = async (paid:boolean) => {
     try {
       triggerSnack("Mencetak");
       await printerService.connect();
@@ -70,12 +70,11 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
             price: detail.price, // Price of the product
             total: detail.price * detail.quantity
           })),
-          paid: fromSpeedDial ? "-- Belum Bayar --" : "-- Lunas --",
+          paid: paid ? "-- Lunas --" : "-- Belum Bayar --",
           discount:disc,
           cashierName: userRole
       };
 
-      console.log(details);
       await printerService.printReceipt(details);
       triggerSnack('Receipt printed successfully!')
     } catch (error) {
@@ -147,7 +146,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       note: note,
       grand_total_amount: selectedTransaction?.grand_total_amount||getGrandTotal(products, disc),
       discount: String(discount),
-      transaction_details: products,
+      transaction_details: [],
       created_at: new Date,
       store_id: selectedStore?.id,
       id: selectedTransaction?.id||0
@@ -158,11 +157,11 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       let response;
       if (selectedTransaction?.id) {
         // Update existing transaction
-        response = await updateTransaction(transaction, products).then(()=>handlePrint(false));
+        response = await updateTransaction(transaction, products).then(()=>handlePrint(true));
         triggerSnack('Transaksi Berhasil Diubah!');
       } else {
         // Create new transaction
-        response = await insertTransaction(transaction, products).then(()=>handlePrint(false));
+        response = await insertTransaction(transaction, products).then(()=>handlePrint(true));
         triggerSnack('Transaksi Berhasil Dibuat!');
       }
 
@@ -207,7 +206,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     handleClose();
     switch(param) {
       case 'Print':
-        return handlePrint(true);;
+        return handlePrint(false);;
       case 'Note':
         return setNoteModalState(true);
       case 'Disc':
