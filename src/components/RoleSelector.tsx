@@ -29,7 +29,8 @@ const RoleSelector: React.FC = () => {
         <Button 
           size='small'
           onClick={handleClick}
-          variant='outlined'
+          variant='contained'
+          color='info'
           >
           {role}
           </Button>
