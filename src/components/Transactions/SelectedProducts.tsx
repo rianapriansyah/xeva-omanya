@@ -75,6 +75,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
           cashierName: userRole
       };
 
+      console.log(details);
       await printerService.printReceipt(details);
       triggerSnack('Receipt printed successfully!')
     } catch (error) {
@@ -130,11 +131,14 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       return;
     }
 
-    const totalAmount = products.reduce(
-      (sum, product) => sum + product.price * product.quantity,
-      0
-    );
+    const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity,0);
+    debugger;
     const discount = Number(disc);
+    let grand_total_amount = totalAmount;
+    if(discount > 0){
+      const discountPrice = (discount * totalAmount)/100;
+      grand_total_amount = totalAmount - discountPrice;
+    }
 
     const transaction:Transaction = {
       user_name: userRole,
@@ -144,14 +148,13 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       table_no: selectedTransaction?.table_no||tableNo,
       guest_name: selectedTransaction?.guest_name||guestName,
       note: note,
-      grand_total_amount: selectedTransaction?.grand_total_amount||getGrandTotal(products, disc),
+      grand_total_amount: selectedTransaction?.grand_total_amount||grand_total_amount,
       discount: String(discount),
       transaction_details: [],
       created_at: new Date,
       store_id: selectedStore?.id,
       id: selectedTransaction?.id||0
     };
-
 
     try {
       let response;
@@ -304,10 +307,10 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
               </TableHead>
               <TableBody>
               {products.map((product) => (
-                <StyledTableRow  key={product.id}>
+                <StyledTableRow key={product.id}>
                   <StyledTableCell>
                     {product.product_name}
-                  {/* <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>{product.kitchen}</Typography> */}
+                  <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>{product.id}</Typography>
                   </StyledTableCell>
                   <StyledTableCell align="right">{product.quantity} x 
                     <NumericFormat value={product.price} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' '}/>

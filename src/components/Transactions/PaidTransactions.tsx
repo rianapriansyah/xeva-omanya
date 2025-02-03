@@ -92,7 +92,7 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 								<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Meja : {transaction.table_no}</Typography>
 								</StyledTableCell>
 								<StyledTableCell>
-									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.total_amount)}
+									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.grand_total_amount)}
 								</StyledTableCell>
 								<StyledTableCell>
 									{new Intl.DateTimeFormat('id-ID', {dateStyle: 'medium',timeZone: 'Asia/Makassar',}).format(new Date(transaction.created_at))}

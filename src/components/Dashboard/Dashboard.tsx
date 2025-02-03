@@ -17,6 +17,8 @@ import MuiAccordionSummary, {
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { getAllCategories } from '../../services/categoryService';
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
 
 const Dashboard: React.FC = () => {
 	const selectedStore = useSelector((state: RootState) => state.store.selectedStore);
@@ -53,6 +55,7 @@ const Dashboard: React.FC = () => {
 		if (isFetching) return; // Prevent fetch if already in progress
 		isFetching = true;
     const response = await getIncomeData(storeId, filter);
+		console.log(response);
 		setIncomeData(response);
 		isFetching = false;
 	};
@@ -136,6 +139,7 @@ const Dashboard: React.FC = () => {
 	const handleFilterChange = async (e: SelectChangeEvent<string>) => {
     setSelectedFilter(e.target.value as string);
   };
+	
 
 	return (
 		<Grid>
@@ -231,6 +235,24 @@ const Dashboard: React.FC = () => {
 					height={300}
 					tooltip={{ trigger: 'item' }} 
 				/>
+				
+				{/* <LineChart
+          width={2000}
+          height={300}
+          data={incomeData}
+          margin={{
+						left: 50,
+            top: 10,
+            right: 10,
+            bottom: 2,
+          }}
+        >
+          <XAxis dataKey="transaction_date" label='tanggal' />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="total_income" stroke="#8884d8" activeDot={{ r: 8 }} />
+        </LineChart> */}
 				</Grid>
 				<List>
 					{categories.map((category)=>(
@@ -265,7 +287,8 @@ const Dashboard: React.FC = () => {
 					{...chartSetting}
 				/> */}
 			</Box>
-			<Offset />			
+			<Offset />		
+			
 		</Grid>
 	);
 };
