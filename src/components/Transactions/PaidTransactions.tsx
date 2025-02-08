@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft';
 // import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+// import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import { getAllTodayPaidTransactions } from '../../services/transactionService';
 
 interface PaidTransactionsProps {
@@ -116,9 +116,9 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 										{/* <ToggleButton value="print" onClick={() => onSelectTransaction(transaction, Actions.Print)}>
 											<LocalPrintshopIcon />
 										</ToggleButton> */}
-										<ToggleButton value="delete" onClick={() => onSelectTransaction(transaction, Actions.Delete)}>
+										{/* <ToggleButton value="delete" onClick={() => onSelectTransaction(transaction, Actions.Delete)}>
 											<DeleteForeverIcon />
-										</ToggleButton>       
+										</ToggleButton>        */}
 									</ToggleButtonGroup>
 								</StyledTableCell>
 							</StyledTableRow >
