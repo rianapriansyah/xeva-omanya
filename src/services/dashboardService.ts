@@ -16,7 +16,7 @@ export async function getTransactionsSummaryWithFilter(store_id :any, date_filte
 
 export async function getIncomeData(store_id :any, date_filter:string) {
   const { data, error } = await supabase.rpc('get_income_by_date', {store_id_filter :store_id, filter:date_filter, start_date_filter:new Date() });
-
+  console.log(data);
 
   if (error) throw new Error(error.message);
   

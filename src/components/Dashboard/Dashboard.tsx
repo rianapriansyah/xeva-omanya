@@ -60,9 +60,11 @@ const Dashboard: React.FC = () => {
 		isFetching = false;
 	};
 
-	const xAxisData = incomeData? incomeData.map((point:any) => new Date(point.transaction_date).getDate()) : []; // Extract dates
+	// const xAxisData = incomeData? incomeData.map((point:any) => new Date(point.transaction_date)) : []; // Extract dates
+	const xAxisData = incomeData? incomeData.map((point:any) => 
+		new Intl.DateTimeFormat('id-ID', {dateStyle: 'short',timeZone: 'Asia/Makassar',}).format(new Date(point.transaction_date))) : []; // Extract dates
+	console.log(xAxisData);
 	const seriesData = incomeData? incomeData?.map((point:any) => point.total_income) : []; // Extract total income
-
 
 	const fetchProductsSold = async (storeId: any, filter: string, _startDate?: string, _endDate?: string) => {
 		let isFetching = false;
@@ -231,7 +233,7 @@ const Dashboard: React.FC = () => {
 					margin={{left: 70,right: 10,}}
 					grid={{ vertical: true, horizontal: true }}
 					xAxis={[{ data: xAxisData, scaleType: 'point', label:'tanggal',  }]}
-					series={[{ data: seriesData }]}
+					series={[{ data: seriesData, label:'Pemasukkan' }]}
 					height={300}
 					tooltip={{ trigger: 'item' }} 
 				/>
