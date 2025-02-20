@@ -18,7 +18,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import DiscountModal from './DiscountModal';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import { Transaction, TransactionDetail } from '../../types/interfaceModel';
+import { PaymentMethod, Transaction, TransactionDetail } from '../../types/interfaceModel';
 import AppsIcon from '@mui/icons-material/Apps';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { getGrandTotal, insertTransaction, updateTransaction } from '../../services/transactionService';
@@ -28,6 +28,7 @@ import { RootState } from '../../services/store';
 
 interface SelectedProductsProps {
   products: TransactionDetail[];
+  paymentMethods:PaymentMethod[];
   selectedTransaction:Transaction;
   onUpdateQuantity: (id: number, newQuantity: number) => void;
   onCancelOrder: () => void;
@@ -35,6 +36,7 @@ interface SelectedProductsProps {
 
 const SelectedProducts: React.FC<SelectedProductsProps> = ({
   products,
+  paymentMethods,
   selectedTransaction,
   onUpdateQuantity,
   onCancelOrder
@@ -47,7 +49,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const [isDiscModalOpen, setDiscountModalState] = useState(false); // Modal state
   const [tableNo, setTableNo] = useState(selectedTransaction.table_no); // Default from transaction
   const [guestName, setGuestName] = useState(selectedTransaction.guest_name); // Default from transaction
-  const [paymentMethodId, setPaymentMethod] = useState(1); // Selected payment method
+  const [paymentMethodId, setPaymentMethod] = useState(selectedTransaction.payment_method_id); // Selected payment method
   const [disc, setDiscount] = useState(""); // Modal state
   const [postMessage, setPostMessage] = useState(""); // Modal state
   const [note, setTransactionNote] = useState("");
@@ -56,7 +58,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
   const handleClose = () => setOpen(false);
   const handleCloseSnack = () => setOpenSnack(false);
 
-  const handlePrint = async (paid:boolean) => {
+  const handlePrint = async () => {
     try {
       triggerSnack("Mencetak");
       await printerService.connect();
@@ -70,9 +72,10 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
             price: detail.price, // Price of the product
             total: detail.price * detail.quantity
           })),
-          paid: paid ? "-- Lunas --" : "-- Belum Bayar --",
+          paid: selectedTransaction?.paid ? "-- Lunas --" : "-- Belum Bayar --",
           discount:disc,
-          cashierName: userRole
+          cashierName: userRole,
+          paymentMethod: selectedTransaction?.paid ? paymentMethods.find((method)=>method.id===selectedTransaction.payment_method_id)?.name : ""
       };
 
       console.log(details);
@@ -91,7 +94,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     setTableNo("");
     setTransactionNote("");
     setDiscount("");
-    setPaymentMethod(1);
   };
 
   const handleUpdateTransactionNote = (newNote: string) => {
@@ -120,6 +122,12 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     openSnackNotification();
   };
 
+  const setPaymentMethodAndProceedTransaction  = async (paid: boolean, payment_method_id:number) => {
+    console.log(payment_method_id);
+    setPaymentMethod(payment_method_id);
+    handleProceedTransaction(paid, payment_method_id);
+  };
+
   const handleProceedTransaction = async (paid: boolean, payment_method_id:number) => {
     if(selectedTransaction.id===0 && (tableNo===""||guestName==="")){
       triggerSnack("Silakan lengkapi nomor meja dan nama pemesan");
@@ -132,7 +140,6 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     }
 
     const totalAmount = products.reduce((sum, product) => sum + product.price * product.quantity,0);
-    debugger;
     const discount = Number(disc);
     let grand_total_amount = totalAmount;
     if(discount > 0){
@@ -142,7 +149,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
 
     const transaction:Transaction = {
       user_name: userRole,
-      payment_method_id: Number(payment_method_id),
+      payment_method_id: payment_method_id,
       total_amount: totalAmount,
       paid: paid,
       table_no: selectedTransaction?.table_no||tableNo,
@@ -160,11 +167,11 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       let response;
       if (selectedTransaction?.id) {
         // Update existing transaction
-        response = await updateTransaction(transaction, products).then(()=>handlePrint(true));
+        response = await updateTransaction(transaction, products).then(()=>handlePrint());
         triggerSnack('Transaksi Berhasil Diubah!');
       } else {
         // Create new transaction
-        response = await insertTransaction(transaction, products).then(()=>handlePrint(true));
+        response = await insertTransaction(transaction, products).then(()=>handlePrint());
         triggerSnack('Transaksi Berhasil Dibuat!');
       }
 
@@ -209,7 +216,7 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
     handleClose();
     switch(param) {
       case 'Print':
-        return handlePrint(false);;
+        return handlePrint();;
       case 'Note':
         return setNoteModalState(true);
       case 'Disc':
@@ -376,9 +383,10 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
       <ConfirmTransaction
         grandTotal={getGrandTotal(products, disc)}
         isModalOpen={isModalOpen}
+        paymentMethods={paymentMethods}
         paymentMethodId={paymentMethodId}
         onCloseModal={() => setIsModalOpen(false)}
-        handleProceedTransaction={handleProceedTransaction}
+        handleProceedTransaction={setPaymentMethodAndProceedTransaction}
       />
 
       <NoteModal

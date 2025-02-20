@@ -4,18 +4,19 @@ import Grid from '@mui/material/Grid2'
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import TransactionMainRight from './TransactionMainRight';
-import { Transaction, Category, TransactionDetail, Actions, Product } from '../../types/interfaceModel';
+import { Transaction, Category, TransactionDetail, Actions, Product, PaymentMethod } from '../../types/interfaceModel';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
 import { Snackbar } from '@mui/material';
 import { getAllProducts } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { deleteTransactionById } from '../../services/transactionService';
+import { getAllPaymentMethods } from '../../services/paymentMethodService';
 
 const newTransactionObj:Transaction={
 	id: 0,
 	user_name: "",
-	payment_method_id: 1,
+	payment_method_id: 0,
 	total_amount: 0,
 	paid: false,
 	table_no: "",
@@ -33,6 +34,7 @@ const TransactionMain: React.FC = () => {
 	const [selectedProducts, setSelectedProductsToTransDetails] = useState<TransactionDetail[]>([]);
 	const [availableProducts, setAvailableProducts] = useState<Product[]>([]);
 	const [categories, setCategories] = useState<Category[]>([]);
+	const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
 	const [selectedTransaction, setTransaction] = useState<Transaction>(newTransactionObj);
 	const [openSnack, setOpenSnack] = React.useState(false);
 	const handleCloseSnack = () => setOpenSnack(false);
@@ -47,6 +49,10 @@ const TransactionMain: React.FC = () => {
 	}, [selectedStore]);
 
 	useEffect(() => {
+		fetchPaymentMethods();		
+	}, []);
+
+	useEffect(() => {
 		setCategories((categories) => [{id:999, name:"Clear", description:"", store_id:0}, ...categories ]);
 	}, [selectedStore]);
 
@@ -57,6 +63,16 @@ const TransactionMain: React.FC = () => {
 		const data = await getAllProducts(selectedStore?.id);
 		const sortedProduct = data.sort((a: { name: string; }, b: { name: string; }) => a.name.localeCompare(b.name));
 		setAvailableProducts(sortedProduct);
+		isFetching = false;
+	};
+
+	// Fetch payment methods
+	const fetchPaymentMethods = async () => {
+		let isFetching = false;
+		if (isFetching) return; // Prevent fetch if already in progress
+		isFetching = true;
+		const data = await getAllPaymentMethods();
+		setPaymentMethods(data);
 		isFetching = false;
 	};
 
@@ -186,6 +202,7 @@ const TransactionMain: React.FC = () => {
 					<Stack spacing={2}>
 						<SelectedProducts
 							products={selectedProducts}
+							paymentMethods={paymentMethods}
 							selectedTransaction={selectedTransaction} // Pass the entire transaction object
 							onUpdateQuantity={handleUpdateQuantity}
 							onCancelOrder={handleCancelOrder}

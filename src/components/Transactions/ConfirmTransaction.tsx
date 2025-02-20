@@ -13,9 +13,10 @@ import {
 		Paper,
 		Typography,
 } from '@mui/material';
-import { getAllPaymentMethods } from '../../services/paymentMethodService';
+import { PaymentMethod } from '../../types/interfaceModel';
 
 interface ConfirmTransactionProps {
+	paymentMethods:PaymentMethod[];
 	grandTotal:number;
 	isModalOpen: boolean;
 	paymentMethodId: number;
@@ -24,6 +25,7 @@ interface ConfirmTransactionProps {
 }
 
 const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
+	paymentMethods,
 	grandTotal,
 	isModalOpen,
 	paymentMethodId,
@@ -31,9 +33,12 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 	handleProceedTransaction,
 }) => {
 	const [cashAmount, setCashAmount] = useState(0); // State for cash input
-	const [paymentMethods, setPaymentMethods] = useState<any[]>([]);
 	const [localPaymentMethod, setLocalPaymentMethod] = useState(paymentMethodId);
-	let isFetching = false;
+
+	// Inside ConfirmTransaction component
+	useEffect(() => {
+		setLocalPaymentMethod(paymentMethodId);
+	}, [paymentMethodId]); // Dependencies: update when `paymentMethodId` or `paymentMethods` change
 
 	const handlePaymentChange = (_event: React.MouseEvent<HTMLElement>, selectedMethod: number) => {
 		if (selectedMethod !== null) {
@@ -45,23 +50,8 @@ const ConfirmTransaction: React.FC<ConfirmTransactionProps> = ({
 		}
 	};
 
-	useEffect(() => {
-		setLocalPaymentMethod(1);
-		fetchPaymentMethods();
-	}, []);
-
-	// Fetch payment methods
-	const fetchPaymentMethods = async () => {
-		if (isFetching) return; // Prevent fetch if already in progress
-		isFetching = true;
-		const data = await getAllPaymentMethods();
-		setPaymentMethods(data);
-		isFetching = false;
-	};
-
 	const handleMoneyChipClick = (value: number) => {
 		setCashAmount(value);
-	//  setCashAmount((prev) => (prev === '' ? value : `${prev}${value}`));
 	};
 
 	const disabledMoyeChip = (value: number) => {

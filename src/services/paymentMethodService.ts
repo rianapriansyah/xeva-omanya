@@ -5,3 +5,9 @@ export async function getAllPaymentMethods() {
   if (error) throw new Error(error.message);
   return data;
 }
+
+export async function getNameOfPaymentMethod(id:number) {
+  const { data, error } = await supabase.from('payment_methods').select('name').eq('id', id).single();
+  if (error) throw new Error(error.message);
+  return data;
+}

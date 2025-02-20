@@ -30,6 +30,7 @@ interface ReceiptDetails {
 	cashierName: string;
 	discount:string;
 	paid:string;
+	paymentMethod:string|undefined;
 }
 
 interface PrinterSetting{
@@ -118,7 +119,7 @@ class PrinterService {
         throw new Error('Printer is not connected.');
     }
 
-    const { shopName, selectedProducts, cashierName, discount, paid } = details;
+    const { shopName, selectedProducts, cashierName, discount, paid, paymentMethod } = details;
 
     const boldOn = new Uint8Array([27, 69, 1]);
     const boldOff = new Uint8Array([27, 69, 0]);
@@ -161,6 +162,7 @@ class PrinterService {
         await this.characteristic.writeValue(textToDataView(`Total`.padEnd(38) + `Rp ${total.toLocaleString('id-ID')}\n`));
         await this.characteristic.writeValue(textToDataView(`Disc ${discount}%`.padEnd(38) + `Rp ${discountValue.toLocaleString('id-ID')}\n`));
         await this.characteristic.writeValue(textToDataView(`Gr. Total`.padEnd(38) + `Rp ${grandTotal.toLocaleString('id-ID')}\n`));
+				await this.characteristic.writeValue(textToDataView(`Pembayaran ${paymentMethod}\n`));
         await this.characteristic.writeValue(new DataView(lineFeed.buffer));
 
         // Payment Status
