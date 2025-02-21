@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Button, Paper, Stack, styled, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { Actions, Transaction } from '../../types/interfaceModel';
+import { Actions, PaymentMethod, Transaction } from '../../types/interfaceModel';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
@@ -11,10 +11,12 @@ import SubdirectoryArrowLeftIcon from '@mui/icons-material/SubdirectoryArrowLeft
 import { getAllTodayPaidTransactions } from '../../services/transactionService';
 
 interface PaidTransactionsProps {
+	paymentMethods:PaymentMethod[];
 	onSelectTransaction: (transaction: Transaction, action:Actions) => void;
 }
 
 const PaidTransactions: React.FC<PaidTransactionsProps> = ({
+	paymentMethods,
 	onSelectTransaction
 }) => {
 
@@ -93,6 +95,8 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 								</StyledTableCell>
 								<StyledTableCell>
 									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.grand_total_amount)}
+									<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>
+										Pembayaran {paymentMethods.find((method)=>method.id===transaction.payment_method_id)?.name}</Typography>
 								</StyledTableCell>
 								<StyledTableCell>
 									{new Intl.DateTimeFormat('id-ID', {dateStyle: 'medium',timeZone: 'Asia/Makassar',}).format(new Date(transaction.created_at))}

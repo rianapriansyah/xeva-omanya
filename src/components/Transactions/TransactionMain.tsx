@@ -210,7 +210,8 @@ const TransactionMain: React.FC = () => {
 					</Stack>
 				</Grid>
 				<Grid size={6}>
-					<TransactionMainRight 
+					<TransactionMainRight
+						paymentMethods={paymentMethods}
 						onAddProduct={handleAddProduct} 
 						availableProducts={availableProducts}
 						categories={categories}

@@ -24,6 +24,7 @@ import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { getGrandTotal, insertTransaction, updateTransaction } from '../../services/transactionService';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../services/store';
+import TransactionSummaryText from '../common/TransactionSummaryText';
 
 
 interface SelectedProductsProps {
@@ -274,25 +275,14 @@ const SelectedProducts: React.FC<SelectedProductsProps> = ({
         </Stack>
         <Box>
         <Grid container rowSpacing={1}>
-          <Grid size={6}>
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Note : {note}</Typography>
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Total Items :{' '}
-              {products.reduce((sum, product) => sum + product.quantity, 0)}
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Disc : {disc} % =
-            <NumericFormat value={getDiscount(products)} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' IDR '}/>
-            </Typography>            
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Total :
-              <NumericFormat value={products.reduce((sum: number, product: { price: number; quantity: number; }) => sum + product.price * product.quantity, 0)} 
-              displayType="text" thousandSeparator="." decimalSeparator="," prefix={' IDR '}/>
-            </Typography>
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Gr. Total :
-              <NumericFormat value={getGrandTotal(products, disc)} displayType="text" thousandSeparator="." decimalSeparator="," prefix={' IDR '}/>
-            </Typography>
-          </Grid>
-          <Grid size={6}>
-            <Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic', textAlign:'right' }}>Cashier : chaotic_noobz</Typography>
-            </Grid>
+          <TransactionSummaryText 
+            note={note} 
+            totalItems={products.reduce((sum, product) => sum + product.quantity, 0)} 
+            discount={disc} 
+            total={products.reduce((sum: number, product: { price: number; quantity: number; }) => sum + product.price * product.quantity, 0)} 
+            grandTotal={getGrandTotal(products, disc)} 
+            discountPrice={getDiscount(products)}            
+          />
         </Grid>
         </Box>
         <Box sx={{

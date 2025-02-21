@@ -3,11 +3,12 @@ import Box from '@mui/material/Box';
 import { Tab, Tabs } from '@mui/material';
 import AvailableProducts from './AvailableProducts';
 import UnpaidTransactions from './UnpaidTransactions';
-import { Transaction, Category, Actions, Product } from '../../types/interfaceModel';
+import { Transaction, Category, Actions, Product, PaymentMethod } from '../../types/interfaceModel';
 import PaidTransactions from './PaidTransactions';
 
 interface TransactionMainRightProps {
   availableProducts:Product[];
+	paymentMethods:PaymentMethod[];
   categories:Category[];
 	onAddProduct: (product: any) => void;
 	onSelectTransaction: (transaction: Transaction, action:Actions) => void;
@@ -15,6 +16,7 @@ interface TransactionMainRightProps {
 
 const TransactionMainRight: React.FC<TransactionMainRightProps> = ({
   availableProducts,
+	paymentMethods,
   categories,
   onAddProduct,
 	onSelectTransaction
@@ -70,6 +72,7 @@ const TransactionMainRight: React.FC<TransactionMainRightProps> = ({
 			</CustomTabPanel>
 			<CustomTabPanel value={value} index={2}>
 				<PaidTransactions
+					paymentMethods={paymentMethods}
 					onSelectTransaction={onSelectTransaction}
 				/>
 			</CustomTabPanel>
