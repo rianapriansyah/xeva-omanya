@@ -94,7 +94,7 @@ const PaidTransactions: React.FC<PaidTransactionsProps> = ({
 								<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>Meja : {transaction.table_no}</Typography>
 								</StyledTableCell>
 								<StyledTableCell>
-									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.grand_total_amount)}
+									{new Intl.NumberFormat('id-ID', {style:'currency', currency:'IDR'}).format(transaction.total_amount)}
 									<Typography variant="body2" sx={{ color: 'text.primary', fontSize: 12, fontStyle: 'italic' }}>
 										Pembayaran {paymentMethods.find((method)=>method.id===transaction.payment_method_id)?.name}</Typography>
 								</StyledTableCell>
